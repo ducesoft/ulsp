@@ -1,9 +1,9 @@
 package parseutil
 
 import (
-	"github.com/lighttiger2505/sqls/ast"
-	"github.com/lighttiger2505/sqls/ast/astutil"
-	"github.com/lighttiger2505/sqls/token"
+	"github.com/ducesoft/ulsp/ast"
+	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/token"
 )
 
 func ExtractIdenfiers(parsed ast.TokenList, pos token.Pos) ([]ast.Node, error) {

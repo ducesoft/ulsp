@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/lighttiger2505/sqls/dialect"
+	"github.com/ducesoft/ulsp/dialect"
 )
 
 type SQLWord struct {

@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net"
 	"strconv"
 
+	"github.com/ducesoft/ulsp/dialect"
 	"github.com/go-sql-driver/mysql"
-	"github.com/lighttiger2505/sqls/dialect"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -322,7 +322,7 @@ func (db *MySQLDBRepository) DescribeForeignKeysBySchema(ctx context.Context, sc
 			 kcu.ORDINAL_POSITION
 		`, schemaName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

@@ -2,16 +2,15 @@ package formatter
 
 import (
 	"errors"
-
-	"github.com/lighttiger2505/sqls/ast"
-	"github.com/lighttiger2505/sqls/ast/astutil"
-	"github.com/lighttiger2505/sqls/internal/config"
-	"github.com/lighttiger2505/sqls/internal/lsp"
-	"github.com/lighttiger2505/sqls/parser"
-	"github.com/lighttiger2505/sqls/token"
+	"github.com/ducesoft/ulsp/ast"
+	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/lsp"
+	"github.com/ducesoft/ulsp/parser"
+	"github.com/ducesoft/ulsp/token"
 )
 
-func Format(text string, params lsp.DocumentFormattingParams, cfg *config.Config) ([]lsp.TextEdit, error) {
+func Format(text string, params *lsp.DocumentFormattingParams, cfg *config.Config) ([]lsp.TextEdit, error) {
 	if text == "" {
 		return nil, errors.New("empty")
 	}

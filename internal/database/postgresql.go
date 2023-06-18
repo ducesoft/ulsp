@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog/log"
 	"net"
 	"net/url"
 	"sort"
@@ -12,9 +13,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/stdlib"
-	"github.com/lighttiger2505/sqls/dialect"
+	"github.com/ducesoft/ulsp/dialect"
+	"github.com/jackc/pgx/v5/stdlib"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -111,7 +111,7 @@ func (db *PostgreSQLDBRepository) Databases(ctx context.Context) ([]string, erro
 	SELECT datname FROM pg_database
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer rows.Close()
 	databases := []string{}
@@ -144,7 +144,7 @@ func (db *PostgreSQLDBRepository) Schemas(ctx context.Context) ([]string, error)
 	SELECT schema_name FROM information_schema.schemata
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer rows.Close()
 	databases := []string{}
@@ -206,7 +206,7 @@ func (db *PostgreSQLDBRepository) Tables(ctx context.Context) ([]string, error) 
 	  table_name
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer rows.Close()
 	tables := []string{}
@@ -260,7 +260,7 @@ func (db *PostgreSQLDBRepository) DescribeDatabaseTable(ctx context.Context) ([]
 		c.ordinal_position
 	`)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer rows.Close()
 	tableInfos := []*ColumnDesc{}
@@ -327,7 +327,7 @@ func (db *PostgreSQLDBRepository) DescribeDatabaseTableBySchema(ctx context.Cont
 		c.ordinal_position
 	`, schemaName, schemaName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer rows.Close()
 	tableInfos := []*ColumnDesc{}
@@ -377,7 +377,7 @@ func (db *PostgreSQLDBRepository) DescribeForeignKeysBySchema(ctx context.Contex
 			 kcu.ORDINAL_POSITION
 		`, schemaName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)
@@ -430,7 +430,8 @@ func genPostgresConfig(connCfg *DBConfig) (string, error) {
 // ignoring any values with keys in ignore.
 //
 // For example, to build a "ODBC" style connection string, use like the following:
-//     genOptions(u.Query(), "", "=", ";", ",")
+//
+//	genOptions(u.Query(), "", "=", ";", ",")
 func genOptions(q url.Values, joiner, assign, sep, valSep string, skipWhenEmpty bool, ignore ...string) string {
 	qlen := len(q)
 	if qlen == 0 {

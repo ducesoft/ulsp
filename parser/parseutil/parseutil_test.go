@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ducesoft/ulsp/ast"
+	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/parser"
+	"github.com/ducesoft/ulsp/token"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lighttiger2505/sqls/ast"
-	"github.com/lighttiger2505/sqls/ast/astutil"
-	"github.com/lighttiger2505/sqls/parser"
-	"github.com/lighttiger2505/sqls/token"
 )
 
 func Test_extractFocusedStatement(t *testing.T) {

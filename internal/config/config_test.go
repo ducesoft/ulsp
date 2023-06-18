@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lighttiger2505/sqls/internal/database"
 )
 
 func TestGetConfig(t *testing.T) {

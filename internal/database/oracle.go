@@ -3,11 +3,11 @@ package database
 import (
 	"context"
 	"database/sql"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strconv"
 
+	"github.com/ducesoft/ulsp/dialect"
 	_ "github.com/godror/godror"
-	"github.com/lighttiger2505/sqls/dialect"
 )
 
 func init() {
@@ -206,7 +206,7 @@ func (db *OracleDBRepository) DescribeDatabaseTableBySchema(ctx context.Context,
 		WHERE OWNER = :1
 `, schemaName)
 	if err != nil {
-		log.Println("schema", schemaName, err.Error())
+		log.Error().Msgf("schema %s, %s", schemaName, err.Error())
 		return nil, err
 	}
 	tableInfos := []*ColumnDesc{}
@@ -252,7 +252,7 @@ func (db *OracleDBRepository) DescribeForeignKeysBySchema(ctx context.Context, s
 	ORDER BY a.CONSTRAINT_NAME, a.POSITION
 		`, schemaName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

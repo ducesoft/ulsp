@@ -3,8 +3,8 @@ package parseutil
 import (
 	"testing"
 
+	"github.com/ducesoft/ulsp/token"
 	"github.com/google/go-cmp/cmp"
-	"github.com/lighttiger2505/sqls/token"
 )
 
 func TestExtractInsert(t *testing.T) {

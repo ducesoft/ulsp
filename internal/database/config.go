@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/lighttiger2505/sqls/dialect"
+	"github.com/ducesoft/ulsp/dialect"
 	"golang.org/x/crypto/ssh"
 )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/k0kubun/pp"
 
-	"github.com/lighttiger2505/sqls/dialect"
+	"github.com/ducesoft/ulsp/dialect"
 )
 
 func TestTokenizer_Tokenize(t *testing.T) {
@@ -75,7 +75,7 @@ func TestTokenizer_Tokenize(t *testing.T) {
 		},
 		{
 			name: "whitespace and tab",
-			in: "\r\n	",
+			in:   "\r\n	",
 			out: []*Token{
 				{
 					Kind:  Whitespace,

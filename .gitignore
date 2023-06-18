@@ -1,39 +1,56 @@
-# Created by https://www.gitignore.io/api/go
-# Edit at https://www.gitignore.io/?templates=go
-
-### Go ###
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-### Go Patch ###
-/vendor/
-/Godeps/
-
-# End of https://www.gitignore.io/api/go
-
-# docker
-docker
-.docker
-
-# build dist
-sqls
-dist/
-
-# direnv
-.envrc
-
-# vim
+.gradle/
+.groovy/
+.metadata/
+.settings/
+.classpath
+.project
+bin/
+target/
+classes/
+LICENSE.txt
+.springBeans
+*~
+~*
+*.swp
+*.swo
+*.pyc
+*.iml
+*.eml
+rebel.xml
+.idea/
+out/test/*
+out/production/*
+out/artifacts/*
+resources-etermconf/
 tags
+.~lock.*
+*.ipr
+*.iws
+checkstyle/
+.pydevproject
+bin-groovy
+.DS_Store
+ip
+test-output
+.cache
+node_modules/
+.jshintrc
+*.o
+.recommenders/
+gradle-app.setting
+**/gradlew*
+**/gradle/*
+.profiles/
+**/soa-backup
+**/out
+.mqtt/**
+**/.venv
+**/.pytest_cache
+**/dist
+**/python/**/build
+**/python/**/*.egg-info
+**/*.out
+**/*.log
+**/*.log.*
+github/*
+/output

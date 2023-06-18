@@ -7,14 +7,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lighttiger2505/sqls/ast"
-	"github.com/lighttiger2505/sqls/ast/astutil"
-	"github.com/lighttiger2505/sqls/dialect"
-	"github.com/lighttiger2505/sqls/internal/database"
-	"github.com/lighttiger2505/sqls/internal/lsp"
-	"github.com/lighttiger2505/sqls/parser"
-	"github.com/lighttiger2505/sqls/parser/parseutil"
-	"github.com/lighttiger2505/sqls/token"
+	"github.com/ducesoft/ulsp/ast"
+	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/dialect"
+	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/lsp"
+	"github.com/ducesoft/ulsp/parser"
+	"github.com/ducesoft/ulsp/parser/parseutil"
+	"github.com/ducesoft/ulsp/token"
 )
 
 type completionType int
@@ -89,7 +89,7 @@ func completionTypeIs(completionTypes []completionType, expect completionType) b
 	return false
 }
 
-func (c *Completer) Complete(text string, params lsp.CompletionParams, lowercaseKeywords bool) ([]lsp.CompletionItem, error) {
+func (c *Completer) Complete(text string, params *lsp.CompletionParams, lowercaseKeywords bool) ([]lsp.CompletionItem, error) {
 	parsed, err := parser.Parse(text)
 	if err != nil {
 		return nil, err
