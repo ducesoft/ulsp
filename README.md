@@ -1,6 +1,8 @@
-# LSPS
+# ULSP
 
-An implementation of the Language Server Protocol for SQL.
+An uniform implementation of the Language Server Protocol.
+
+Fork from https://github.com/lighttiger2505/sqls.
 
 ## Note
 
