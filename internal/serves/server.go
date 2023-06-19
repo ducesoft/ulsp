@@ -5,7 +5,7 @@
  *
  */
 
-package service
+package serves
 
 import (
 	"context"

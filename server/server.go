@@ -10,24 +10,42 @@ package server
 import (
 	"context"
 	"github.com/ducesoft/ulsp/internal/config"
-	"github.com/ducesoft/ulsp/internal/service"
+	"github.com/ducesoft/ulsp/internal/serves"
 	"github.com/ducesoft/ulsp/lsp"
 	"net/http"
 )
 
+var _ http.Handler = new(Server)
+
 type Server struct {
 	server *http.Server
-	serves *service.Server
+	serves *serves.Server
 }
 
-func (that *Server) Start(address string, conf *config.Config) error {
-	that.serves = service.NewServer(conf)
+func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if nil == that.serves {
+		http.NotFound(writer, request)
+		return
+	}
+	that.serves.ServeHTTP(writer, request)
+}
+
+func (that *Server) ServesReady(conf *config.Config) (*serves.Server, error) {
+	serves := serves.NewServer(conf)
+	if err := serves.Start(); nil != err {
+		return nil, err
+	}
+	return serves, nil
+}
+
+func (that *Server) Start(address string, conf *config.Config) (err error) {
+	that.serves, err = that.ServesReady(conf)
+	if nil != err {
+		return err
+	}
 	that.server = &http.Server{
 		Addr:    address,
 		Handler: that.serves,
-	}
-	if err := that.serves.Start(); nil != err {
-		return err
 	}
 	return that.server.ListenAndServe()
 }
