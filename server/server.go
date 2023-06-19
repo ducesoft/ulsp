@@ -30,17 +30,13 @@ func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 	that.serves.ServeHTTP(writer, request)
 }
 
-func (that *Server) ServesReady(conf *config.Config) (*serves.Server, error) {
-	ss := serves.NewServer(conf)
-	if err := ss.Start(); nil != err {
-		return nil, err
-	}
-	return ss, nil
+func (that *Server) Start(conf *config.Config) error {
+	that.serves = serves.NewServer(conf)
+	return that.serves.Start()
 }
 
-func (that *Server) Start(address string, conf *config.Config) (err error) {
-	that.serves, err = that.ServesReady(conf)
-	if nil != err {
+func (that *Server) ListenAndServe(address string, conf *config.Config) (err error) {
+	if err = that.Start(conf); nil != err {
 		return err
 	}
 	that.server = &http.Server{
