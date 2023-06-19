@@ -11,7 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/lsp"
 	ws "github.com/gorilla/websocket"
@@ -34,7 +34,7 @@ type Server struct {
 	DefaultFileCfg     *config.Config
 	WSCfg              *config.Config
 	dbConn             *database.DBConnection
-	curDBCfg           *database.DBConfig
+	curDBCfg           *config.DBConfig
 	curDBName          string
 	curConnectionIndex int
 
@@ -42,7 +42,7 @@ type Server struct {
 	// sent by the client as part of the LSP InitializationOptions
 	// payload. If non-nil, the server will ignore all
 	// other configuration sources (workspace and user).
-	initOptionDBConfig *database.DBConfig
+	initOptionDBConfig *config.DBConfig
 
 	worker  *database.Worker
 	files   map[lsp.DocumentURI]*File

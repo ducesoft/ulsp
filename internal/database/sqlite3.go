@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/rs/zerolog/log"
 
 	"github.com/ducesoft/ulsp/dialect"
@@ -15,7 +16,7 @@ func init() {
 	RegisterFactory(dialect.DatabaseDriverSQLite3, NewSQLite3DBRepository)
 }
 
-func sqlite3Open(connCfg *DBConfig) (*DBConnection, error) {
+func sqlite3Open(connCfg *config.DBConfig) (*DBConnection, error) {
 	conn, err := sql.Open("sqlite3", connCfg.DataSourceName)
 	if err != nil {
 		return nil, err

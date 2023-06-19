@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 	"io"
 	"strconv"
@@ -305,11 +306,11 @@ func (that *Server) showConnections(ctx context.Context, params *lsp.ExecuteComm
 			desc = conn.DataSourceName
 		} else {
 			switch conn.Proto {
-			case database.ProtoTCP:
+			case config.ProtoTCP:
 				desc = fmt.Sprintf("tcp(%s:%d)/%s", conn.Host, conn.Port, conn.DBName)
-			case database.ProtoUDP:
+			case config.ProtoUDP:
 				desc = fmt.Sprintf("udp(%s:%d)/%s", conn.Host, conn.Port, conn.DBName)
-			case database.ProtoUnix:
+			case config.ProtoUnix:
 				desc = fmt.Sprintf("unix(%s)/%s", conn.Path, conn.DBName)
 			}
 		}

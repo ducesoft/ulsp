@@ -8,7 +8,7 @@
 package main
 
 import (
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/server"
 	"github.com/rs/zerolog/log"
 )

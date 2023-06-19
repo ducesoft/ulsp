@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
 	"github.com/ducesoft/ulsp/token"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/rs/zerolog/log"
 	"net"
 	"strconv"
@@ -24,7 +25,7 @@ func init() {
 	RegisterFactory("mysql56", NewMySQLDBRepository)
 }
 
-func mysqlOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
+func mysqlOpen(dbConnCfg *config.DBConfig) (*DBConnection, error) {
 	var (
 		conn    *sql.DB
 		sshConn *ssh.Client
@@ -70,7 +71,7 @@ func (d *MySQLViaSSHDialer) Dial(ctx context.Context, addr string) (net.Conn, er
 	return d.client.Dial("tcp", addr)
 }
 
-func openMySQLViaSSH(dsn string, sshCfg *SSHConfig) (*sql.DB, *ssh.Client, error) {
+func openMySQLViaSSH(dsn string, sshCfg *config.SSHConfig) (*sql.DB, *ssh.Client, error) {
 	sshConfig, err := sshCfg.ClientConfig()
 	if err != nil {
 		return nil, nil, err
@@ -87,7 +88,7 @@ func openMySQLViaSSH(dsn string, sshCfg *SSHConfig) (*sql.DB, *ssh.Client, error
 	return conn, sshConn, nil
 }
 
-func genMysqlConfig(connCfg *DBConfig) (*mysql.Config, error) {
+func genMysqlConfig(connCfg *config.DBConfig) (*mysql.Config, error) {
 	cfg := mysql.NewConfig()
 
 	if connCfg.DataSourceName != "" {
@@ -99,7 +100,7 @@ func genMysqlConfig(connCfg *DBConfig) (*mysql.Config, error) {
 	cfg.DBName = connCfg.DBName
 
 	switch connCfg.Proto {
-	case ProtoTCP, ProtoUDP:
+	case config.ProtoTCP, config.ProtoUDP:
 		host, port := connCfg.Host, connCfg.Port
 		if host == "" {
 			host = "127.0.0.1"
@@ -109,7 +110,7 @@ func genMysqlConfig(connCfg *DBConfig) (*mysql.Config, error) {
 		}
 		cfg.Addr = host + ":" + strconv.Itoa(port)
 		cfg.Net = string(connCfg.Proto)
-	case ProtoUnix:
+	case config.ProtoUnix:
 		if connCfg.Path != "" {
 			cfg.Addr = "/tmp/mysql.sock"
 			break

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"github.com/ducesoft/ulsp/config"
 
 	"github.com/ducesoft/ulsp/dialect"
 )
@@ -546,6 +547,6 @@ func (m *MockResult) RowsAffected() (int64, error) {
 }
 
 func init() {
-	RegisterOpen("mock", func(connCfg *DBConfig) (*DBConnection, error) { return &DBConnection{}, nil })
+	RegisterOpen("mock", func(connCfg *config.DBConfig) (*DBConnection, error) { return &DBConnection{}, nil })
 	RegisterFactory("mock", NewMockDBRepository)
 }

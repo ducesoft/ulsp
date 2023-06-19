@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 	"net"
@@ -23,7 +24,7 @@ func init() {
 	RegisterFactory("postgresql", NewPostgreSQLDBRepository)
 }
 
-func postgreSQLOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
+func postgreSQLOpen(dbConnCfg *config.DBConfig) (*DBConnection, error) {
 	var (
 		conn    *sql.DB
 		sshConn *ssh.Client
@@ -60,7 +61,7 @@ func postgreSQLOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
 	}, nil
 }
 
-func openPostgreSQLViaSSH(dsn string, sshCfg *SSHConfig) (*sql.DB, *ssh.Client, error) {
+func openPostgreSQLViaSSH(dsn string, sshCfg *config.SSHConfig) (*sql.DB, *ssh.Client, error) {
 	sshConfig, err := sshCfg.ClientConfig()
 	if err != nil {
 		return nil, nil, err
@@ -391,7 +392,7 @@ func (db *PostgreSQLDBRepository) Query(ctx context.Context, query string) (*sql
 	return db.Conn.QueryContext(ctx, query)
 }
 
-func genPostgresConfig(connCfg *DBConfig) (string, error) {
+func genPostgresConfig(connCfg *config.DBConfig) (string, error) {
 	if connCfg.DataSourceName != "" {
 		return connCfg.DataSourceName, nil
 	}
@@ -402,7 +403,7 @@ func genPostgresConfig(connCfg *DBConfig) (string, error) {
 	q.Set("dbname", connCfg.DBName)
 
 	switch connCfg.Proto {
-	case ProtoTCP, ProtoUDP:
+	case config.ProtoTCP, config.ProtoUDP:
 		host, port := connCfg.Host, connCfg.Port
 		if host == "" {
 			host = "127.0.0.1"
@@ -412,7 +413,7 @@ func genPostgresConfig(connCfg *DBConfig) (string, error) {
 		}
 		q.Set("host", host)
 		q.Set("port", strconv.Itoa(port))
-	case ProtoUnix:
+	case config.ProtoUnix:
 		q.Set("host", connCfg.Path)
 	default:
 		return "", fmt.Errorf("default addr for network %s unknown", connCfg.Proto)

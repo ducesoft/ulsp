@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ducesoft/ulsp/internal/database"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,7 +20,7 @@ var (
 
 type Config struct {
 	LowercaseKeywords bool                 `json:"lowercaseKeywords" yaml:"lowercaseKeywords"`
-	Connections       []*database.DBConfig `json:"connections" yaml:"connections"`
+	Connections       []*DBConfig `json:"connections" yaml:"connections"`
 }
 
 func (c *Config) Validate() error {

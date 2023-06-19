@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/rs/zerolog/log"
@@ -18,7 +18,7 @@ type File struct {
 }
 
 func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ParamInitialize) (*lsp.InitializeResult, error) {
-	var dbc database.DBConfig
+	var dbc config.DBConfig
 	b, err := json.Marshal(params.InitializationOptions)
 	if nil != err {
 		return nil, err
@@ -222,7 +222,7 @@ func (that *Server) newDBRepository(ctx context.Context) (database.DBRepository,
 	return repo, nil
 }
 
-func (that *Server) topConnection() *database.DBConfig {
+func (that *Server) topConnection() *config.DBConfig {
 	// if the init config is set, ignore all other connection configs
 	if that.initOptionDBConfig != nil {
 		return that.initOptionDBConfig
@@ -235,7 +235,7 @@ func (that *Server) topConnection() *database.DBConfig {
 	return cfg.Connections[0]
 }
 
-func (that *Server) getConnection(index int) *database.DBConfig {
+func (that *Server) getConnection(index int) *config.DBConfig {
 	cfg := that.getConfig()
 	if cfg == nil || (index < 0 && len(cfg.Connections) <= index) {
 		return nil

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/rs/zerolog/log"
 	"strconv"
 
@@ -15,7 +16,7 @@ func init() {
 	RegisterFactory("oracle", NewOracleDBRepository)
 }
 
-func oracleOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
+func oracleOpen(dbConnCfg *config.DBConfig) (*DBConnection, error) {
 	var (
 		conn *sql.DB
 	)
@@ -38,7 +39,7 @@ func oracleOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
 	}, nil
 }
 
-func genOracleConfig(connCfg *DBConfig) (string, error) {
+func genOracleConfig(connCfg *config.DBConfig) (string, error) {
 	if connCfg.DataSourceName != "" {
 		return connCfg.DataSourceName, nil
 	}

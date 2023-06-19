@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 
 	"github.com/ducesoft/ulsp/dialect"
 	"golang.org/x/crypto/ssh"
@@ -11,7 +12,7 @@ import (
 var driverOpeners = make(map[dialect.DatabaseDriver]Opener)
 var driverFactories = make(map[dialect.DatabaseDriver]Factory)
 
-type Opener func(*DBConfig) (*DBConnection, error)
+type Opener func(*config.DBConfig) (*DBConnection, error)
 type Factory func(*sql.DB) DBRepository
 
 type DBConnection struct {
@@ -55,7 +56,7 @@ func Registered(name dialect.DatabaseDriver) bool {
 	return ok1 && ok2
 }
 
-func Open(cfg *DBConfig) (*DBConnection, error) {
+func Open(cfg *config.DBConfig) (*DBConnection, error) {
 	OpenFn, ok := driverOpeners[cfg.Driver]
 	if !ok {
 		return nil, fmt.Errorf("driver not found, %s", cfg.Driver)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/rs/zerolog/log"
 	"net/url"
 	"strconv"
@@ -18,7 +19,7 @@ func init() {
 	RegisterFactory("mssql", NewMssqlDBRepository)
 }
 
-func mssqlOpen(dbConnCfg *DBConfig) (*DBConnection, error) {
+func mssqlOpen(dbConnCfg *config.DBConfig) (*DBConnection, error) {
 	var (
 		conn    *sql.DB
 		sshConn *ssh.Client
@@ -339,7 +340,7 @@ func (db *MssqlDBRepository) Query(ctx context.Context, query string) (*sql.Rows
 	return db.Conn.QueryContext(ctx, query)
 }
 
-func genMssqlConfig(connCfg *DBConfig) (string, error) {
+func genMssqlConfig(connCfg *config.DBConfig) (string, error) {
 	if connCfg.DataSourceName != "" {
 		return connCfg.DataSourceName, nil
 	}
@@ -350,7 +351,7 @@ func genMssqlConfig(connCfg *DBConfig) (string, error) {
 	q.Set("database", connCfg.DBName)
 
 	switch connCfg.Proto {
-	case ProtoTCP:
+	case config.ProtoTCP:
 		host, port := connCfg.Host, connCfg.Port
 		if host == "" {
 			host = "127.0.0.1"
@@ -360,7 +361,7 @@ func genMssqlConfig(connCfg *DBConfig) (string, error) {
 		}
 		q.Set("server", host)
 		q.Set("port", strconv.Itoa(port))
-	case ProtoUDP, ProtoUnix:
+	case config.ProtoUDP, config.ProtoUnix:
 	default:
 		return "", fmt.Errorf("default addr for network %s unknown", connCfg.Proto)
 	}

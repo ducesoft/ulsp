@@ -9,7 +9,7 @@ package server
 
 import (
 	"context"
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/serves"
 	"github.com/ducesoft/ulsp/lsp"
 	"net/http"
@@ -31,11 +31,11 @@ func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 }
 
 func (that *Server) ServesReady(conf *config.Config) (*serves.Server, error) {
-	serves := serves.NewServer(conf)
-	if err := serves.Start(); nil != err {
+	ss := serves.NewServer(conf)
+	if err := ss.Start(); nil != err {
 		return nil, err
 	}
-	return serves, nil
+	return ss, nil
 }
 
 func (that *Server) Start(address string, conf *config.Config) (err error) {
