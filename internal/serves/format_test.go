@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/google/go-cmp/cmp"
 )
@@ -73,7 +73,7 @@ func testFormatting(t *testing.T, testCases []formattingTestCase, options lsp.Fo
 			// Open dummy file
 			didOpenParams := lsp.DidOpenTextDocumentParams{
 				TextDocument: lsp.TextDocumentItem{
-					URI:        uri,
+					URI:        lsp.DocumentURI(uri),
 					LanguageID: "sql",
 					Version:    0,
 					Text:       tt.input,
@@ -86,7 +86,7 @@ func testFormatting(t *testing.T, testCases []formattingTestCase, options lsp.Fo
 			// Create completion params
 			formattingParams := lsp.DocumentFormattingParams{
 				TextDocument: lsp.TextDocumentIdentifier{
-					URI: uri,
+					URI: lsp.DocumentURI(uri),
 				},
 				Options: options,
 				WorkDoneProgressParams: lsp.WorkDoneProgressParams{

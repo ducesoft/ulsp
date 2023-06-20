@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/ducesoft/ulsp/config"
 	"testing"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -9,13 +10,13 @@ import (
 func Test_genPostgresConfig(t *testing.T) {
 	tests := []struct {
 		name    string
-		connCfg *DBConfig
+		connCfg *config.DBConfig
 		want    string
 		wantErr bool
 	}{
 		{
 			name: "",
-			connCfg: &DBConfig{
+			connCfg: &config.DBConfig{
 				Alias:          "",
 				Driver:         "postgresql",
 				DataSourceName: "",

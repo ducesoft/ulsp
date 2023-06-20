@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/ducesoft/ulsp/ast"
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
 )
@@ -13,7 +13,7 @@ func TestEval(t *testing.T) {
 	testcases := []struct {
 		name     string
 		input    string
-		params   lsp.DocumentFormattingParams
+		params   *lsp.DocumentFormattingParams
 		config   *config.Config
 		expected string
 	}{
@@ -21,7 +21,7 @@ func TestEval(t *testing.T) {
 			name:     "InsertIntoFormat",
 			input:    "INSERT INTO users (NAME, email) VALUES ('john doe', 'example@host.com')",
 			expected: "INSERT INTO users(\n\tNAME,\n\temail\n)\nVALUES(\n'john doe',\n'example@host.com'\n)",
-			params:   lsp.DocumentFormattingParams{},
+			params:   &lsp.DocumentFormattingParams{},
 			config: &config.Config{
 				LowercaseKeywords: false,
 			},

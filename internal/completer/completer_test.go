@@ -147,7 +147,7 @@ func TestComplete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			c := NewCompleter(nil)
-			got, err := c.Complete("sel", lsp.CompletionParams{
+			got, err := c.Complete("sel", &lsp.CompletionParams{
 				TextDocumentPositionParams: lsp.TextDocumentPositionParams{
 					Position: lsp.Position{
 						Line:      0,

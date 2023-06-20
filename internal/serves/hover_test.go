@@ -3,8 +3,7 @@ package serves
 import (
 	"testing"
 
-	"github.com/ducesoft/ulsp/internal/config"
-	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/google/go-cmp/cmp"
 )
@@ -207,7 +206,7 @@ func TestHoverMain(t *testing.T) {
 	defer tx.tearDown()
 
 	cfg := &config.Config{
-		Connections: []*database.DBConfig{
+		Connections: []*config.DBConfig{
 			{Driver: "mock"},
 		},
 	}
@@ -252,7 +251,7 @@ func TestHoverNoneDBConnection(t *testing.T) {
 	defer tx.tearDown()
 
 	cfg := &config.Config{
-		Connections: []*database.DBConfig{},
+		Connections: []*config.DBConfig{},
 	}
 	tx.addWorkspaceConfig(t, cfg)
 

@@ -3,8 +3,7 @@ package serves
 import (
 	"testing"
 
-	"github.com/ducesoft/ulsp/internal/config"
-	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 )
 
@@ -18,7 +17,7 @@ func Test_executeQuery(t *testing.T) {
 			SQLS *config.Config "json:\"sqls\""
 		}{
 			SQLS: &config.Config{
-				Connections: []*database.DBConfig{
+				Connections: []*config.DBConfig{
 					{
 						Driver:         "mock",
 						DataSourceName: "",

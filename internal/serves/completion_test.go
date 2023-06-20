@@ -3,8 +3,7 @@ package serves
 import (
 	"testing"
 
-	"github.com/ducesoft/ulsp/internal/config"
-	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 )
 
@@ -1082,7 +1081,7 @@ func TestCompleteMain(t *testing.T) {
 	defer tx.tearDown()
 
 	cfg := &config.Config{
-		Connections: []*database.DBConfig{
+		Connections: []*config.DBConfig{
 			{Driver: "mock"},
 		},
 	}
@@ -1134,7 +1133,7 @@ func TestCompleteJoin(t *testing.T) {
 	defer tx.tearDown()
 
 	cfg := &config.Config{
-		Connections: []*database.DBConfig{
+		Connections: []*config.DBConfig{
 			{Driver: "mock"},
 		},
 	}
@@ -1184,7 +1183,7 @@ func TestCompleteNoneDBConnection(t *testing.T) {
 	defer tx.tearDown()
 
 	cfg := &config.Config{
-		Connections: []*database.DBConfig{},
+		Connections: []*config.DBConfig{},
 	}
 	tx.addWorkspaceConfig(t, cfg)
 

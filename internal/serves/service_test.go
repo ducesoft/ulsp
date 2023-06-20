@@ -2,7 +2,6 @@ package serves
 
 import (
 	"context"
-	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/rs/zerolog/log"
 	"net"
 	"reflect"
@@ -10,7 +9,7 @@ import (
 
 	"github.com/sourcegraph/jsonrpc2"
 
-	"github.com/ducesoft/ulsp/internal/config"
+	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"
 )
 
@@ -25,7 +24,7 @@ type TestContext struct {
 }
 
 func newTestContext() *TestContext {
-	server := NewServer()
+	server := NewServer(&config.Config{})
 	handler := jsonrpc2.HandlerWithError(server.ServeRPC)
 	ctx := context.Background()
 	return &TestContext{
@@ -43,13 +42,13 @@ func (tx *TestContext) setup(t *testing.T) {
 func (tx *TestContext) tearDown() {
 	if tx.conn != nil {
 		if err := tx.conn.Close(); err != nil {
-			log.Fatal("conn.Close:", err)
+			log.Fatal().Msgf("conn.Close: %v", err)
 		}
 	}
 
 	if tx.connServer != nil {
 		if err := tx.connServer.Close(); err != nil {
-			log.Fatal("connServer.Close:", err)
+			log.Fatal().Msgf("connServer.Close: %v", err)
 		}
 	}
 }
@@ -65,7 +64,7 @@ func (tx *TestContext) initServer(t *testing.T) {
 	// Initialize Langage Server
 	params := lsp.InitializeParams{
 		XInitializeParams: lsp.XInitializeParams{
-			InitializationOptions: database.DBConfig{},
+			InitializationOptions: config.DBConfig{},
 		},
 	}
 	if err := tx.conn.Call(tx.ctx, "initialize", params, nil); err != nil {
@@ -130,7 +129,7 @@ func TestInitialized(t *testing.T) {
 	var got lsp.InitializeResult
 	params := lsp.InitializeParams{
 		XInitializeParams: lsp.XInitializeParams{
-			InitializationOptions: database.DBConfig{},
+			InitializationOptions: config.DBConfig{},
 		},
 	}
 	if err := tx.conn.Call(tx.ctx, "initialize", params, &got); err != nil {

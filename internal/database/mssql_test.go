@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/ducesoft/ulsp/config"
 	"testing"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -9,13 +10,13 @@ import (
 func Test_genMssqlConfig(t *testing.T) {
 	tests := []struct {
 		name    string
-		connCfg *DBConfig
+		connCfg *config.DBConfig
 		want    string
 		wantErr bool
 	}{
 		{
 			name: "",
-			connCfg: &DBConfig{
+			connCfg: &config.DBConfig{
 				Alias:          "",
 				Driver:         "mssql",
 				DataSourceName: "",
