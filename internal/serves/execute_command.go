@@ -36,7 +36,7 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			Command: &lsp.Command{
 				Title:     "Execute Query",
 				Command:   CommandExecuteQuery,
-				Arguments: []json.RawMessage{[]byte(params.TextDocument.URI)},
+				Arguments: []json.RawMessage{[]byte(fmt.Sprintf("\"%s\"", params.TextDocument.URI))},
 			},
 		},
 		{
