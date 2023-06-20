@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
+	"github.com/ducesoft/ulsp/internal/i18n"
 	"github.com/ducesoft/ulsp/lsp"
 	"io"
 	"strconv"
@@ -33,6 +34,8 @@ const (
 func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.CodeActionParams) ([]lsp.CodeAction, error) {
 	commands := []lsp.CodeAction{
 		{
+			Title: i18n.Sprintf(ctx, "Execute Query"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Execute Query",
 				Command:   CommandExecuteQuery,
@@ -40,6 +43,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Show Databases"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Show Databases",
 				Command:   CommandShowDatabases,
@@ -47,6 +52,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Show Schemas"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Show Schemas",
 				Command:   CommandShowSchemas,
@@ -54,6 +61,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Show Connections"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Show Connections",
 				Command:   CommandShowConnections,
@@ -61,6 +70,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Switch Database"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Switch Database",
 				Command:   CommandSwitchDatabase,
@@ -68,6 +79,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Switch Connections"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Switch Connections",
 				Command:   CommandSwitchConnection,
@@ -75,6 +88,8 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
+			Title: i18n.Sprintf(ctx, "Show Tables"),
+			Kind:  lsp.Empty,
 			Command: &lsp.Command{
 				Title:     "Show Tables",
 				Command:   CommandShowTables,
