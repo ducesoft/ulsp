@@ -25,7 +25,7 @@ func init() {
 
 const i18nContext = "i18n"
 
-//go:embed locale.*.yaml
+//go:embed locale.*.yml
 var locales embed.FS
 var printers = map[string]*message.Printer{}
 
