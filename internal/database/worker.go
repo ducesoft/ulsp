@@ -42,11 +42,11 @@ func (w *Worker) setColumnCache(col map[string][]*ColumnDesc) {
 
 func (w *Worker) Start() {
 	go func() {
-		log.Info().Msg("db worker: start")
+		log.Info().Msg("LSP server worker has been started. ")
 		for {
 			select {
 			case <-w.done:
-				log.Info().Msg("db worker: done")
+				log.Info().Msg("LSP server worker has been stopped. ")
 				return
 			case <-w.update:
 				generator := NewDBCacheUpdater(w.dbRepo)
@@ -55,7 +55,7 @@ func (w *Worker) Start() {
 					log.Error().Err(err)
 				}
 				w.setColumnCache(col)
-				log.Info().Msg("db worker: Update db cache secondary complete")
+				log.Info().Msg("LSP server worker update db cache secondary complete")
 			}
 		}
 	}()
