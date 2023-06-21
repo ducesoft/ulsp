@@ -43,10 +43,10 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			},
 		},
 		{
-			Title: i18n.Sprintf(ctx, "Show Databases"),
+			Title: i18n.Sprintf(ctx, "Show DataSources"),
 			Kind:  lsp.Empty,
 			Command: &lsp.Command{
-				Title:     "Show Databases",
+				Title:     "Show DataSources",
 				Command:   CommandShowDatabases,
 				Arguments: []json.RawMessage{},
 			},
@@ -57,33 +57,6 @@ func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params 
 			Command: &lsp.Command{
 				Title:     "Show Schemas",
 				Command:   CommandShowSchemas,
-				Arguments: []json.RawMessage{},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Show Connections"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Show Connections",
-				Command:   CommandShowConnections,
-				Arguments: []json.RawMessage{},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Switch Database"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Switch Database",
-				Command:   CommandSwitchDatabase,
-				Arguments: []json.RawMessage{},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Switch Connections"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Switch Connections",
-				Command:   CommandSwitchConnection,
 				Arguments: []json.RawMessage{},
 			},
 		},

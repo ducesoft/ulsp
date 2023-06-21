@@ -27,10 +27,10 @@ const i18nContext = "i18n"
 
 //go:embed locale.*.yml
 var locales embed.FS
-var printers = map[string]*message.Printer{}
+var printers = map[language.Tag]*message.Printer{}
 
 func importLocales() error {
-	fs, err := locales.ReadDir("")
+	fs, err := locales.ReadDir(".")
 	if nil != err {
 		return err
 	}
@@ -57,16 +57,16 @@ func importLocale(name string) error {
 			return err
 		}
 	}
-	printers[lag.String()] = message.NewPrinter(lag)
+	printers[lag] = message.NewPrinter(lag)
 	return nil
 }
 
 func Context(ctx context.Context, tag language.Tag) context.Context {
-	return context.WithValue(ctx, i18nContext, tag.String())
+	return context.WithValue(ctx, i18nContext, tag)
 }
 
 func Sprintf(ctx context.Context, format string, args ...any) string {
-	t, ok := ctx.Value(i18nContext).(string)
+	t, ok := ctx.Value(i18nContext).(language.Tag)
 	if !ok {
 		return fmt.Sprintf(format, args...)
 	}
