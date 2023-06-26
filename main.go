@@ -15,7 +15,7 @@ import (
 
 func main() {
 	s := &server.Server{}
-	if err := s.Start("0.0.0.0:8888", &config.Config{}); nil != err {
+	if err := s.ListenAndServe("0.0.0.0:8888", &config.Config{}); nil != err {
 		log.Error().Err(err)
 	}
 }

@@ -4,157 +4,26 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/ducesoft/ulsp/internal/i18n"
+	"github.com/ducesoft/ulsp/internal/command"
 	"github.com/ducesoft/ulsp/lsp"
-	"io"
 	"strconv"
 	"strings"
 
-	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/internal/database"
-	"github.com/ducesoft/ulsp/parser"
-	"github.com/olekukonko/tablewriter"
 	"github.com/sourcegraph/jsonrpc2"
 )
 
-const (
-	CommandExecuteQuery     = "executeQuery"
-	CommandShowDatabases    = "showDatabases"
-	CommandShowSchemas      = "showSchemas"
-	CommandShowConnections  = "showConnections"
-	CommandSwitchDatabase   = "switchDatabase"
-	CommandSwitchConnection = "switchConnections"
-	CommandShowTables       = "showTables"
-)
-
 func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.CodeActionParams) ([]lsp.CodeAction, error) {
-	commands := []lsp.CodeAction{
-		{
-			Title: i18n.Sprintf(ctx, "Execute Query"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Execute Query",
-				Command:   CommandExecuteQuery,
-				Arguments: []json.RawMessage{[]byte(fmt.Sprintf("\"%s\"", params.TextDocument.URI))},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Show DataSources"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Show DataSources",
-				Command:   CommandShowDatabases,
-				Arguments: []json.RawMessage{},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Show Schemas"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Show Schemas",
-				Command:   CommandShowSchemas,
-				Arguments: []json.RawMessage{},
-			},
-		},
-		{
-			Title: i18n.Sprintf(ctx, "Show Tables"),
-			Kind:  lsp.Empty,
-			Command: &lsp.Command{
-				Title:     "Show Tables",
-				Command:   CommandShowTables,
-				Arguments: []json.RawMessage{},
-			},
-		},
-	}
-	return commands, nil
+	return nil, nil
 }
 
 func (that *Server) ExecuteCommand(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (interface{}, error) {
-	switch params.Command {
-	case CommandExecuteQuery:
-		return that.executeQuery(ctx, params)
-	case CommandShowDatabases:
-		return that.showDatabases(ctx, params)
-	case CommandShowSchemas:
-		return that.showSchemas(ctx, params)
-	case CommandShowConnections:
-		return that.showConnections(ctx, params)
-	case CommandSwitchDatabase:
-		return that.switchDatabase(ctx, params)
-	case CommandSwitchConnection:
-		return that.switchConnections(ctx, params)
-	case CommandShowTables:
-		return that.showTables(ctx, params)
+	if c := command.Load(params.Command); nil != c {
+		return c.Exec(ctx, conn, params, that)
 	}
 	return nil, fmt.Errorf("unsupported command: %v", params.Command)
-}
-
-func (that *Server) executeQuery(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	// parse execute command arguments
-	if that.dbConn == nil {
-		return nil, errors.New("database connection is not open")
-	}
-	if len(params.Arguments) == 0 {
-		return nil, fmt.Errorf("required arguments were not provided: <File URI>")
-	}
-	uri := lsp.DocumentURI(params.Arguments[0])
-	f, ok := that.files[uri]
-	if !ok {
-		return nil, fmt.Errorf("document not found, %q", uri)
-	}
-
-	showVertical := false
-	if len(params.Arguments) > 1 {
-		showVerticalFlag := string(params.Arguments[1])
-		if showVerticalFlag == "-show-vertical" {
-			showVertical = true
-		}
-	}
-
-	// extract target query
-	text := f.Text
-	// TODO XXX
-	//if params.Range != nil {
-	//	text = extractRangeText(
-	//		text,
-	//		params.Range.Start.Line,
-	//		params.Range.Start.Character,
-	//		params.Range.End.Line,
-	//		params.Range.End.Character,
-	//	)
-	//}
-	stmts, err := getStatements(text)
-	if err != nil {
-		return nil, err
-	}
-
-	// execute statements
-	buf := new(bytes.Buffer)
-	for _, stmt := range stmts {
-		query := strings.TrimSpace(stmt.String())
-		if query == "" {
-			continue
-		}
-
-		if _, isQuery := database.QueryExecType(query, ""); isQuery {
-			res, err := that.query(ctx, query, showVertical)
-			if err != nil {
-				return nil, err
-			}
-			fmt.Fprintln(buf, res)
-		} else {
-			res, err := that.exec(ctx, query, showVertical)
-			if err != nil {
-				return nil, err
-			}
-			fmt.Fprintln(buf, res)
-		}
-	}
-	return buf.String(), nil
 }
 
 func extractRangeText(text string, startLine, startChar, endLine, endChar int) string {
@@ -184,248 +53,83 @@ func extractRangeText(text string, startLine, startChar, endLine, endChar int) s
 	return writer.String()
 }
 
-func (that *Server) query(ctx context.Context, query string, vertical bool) (string, error) {
-	repo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return "", err
-	}
-	rows, err := repo.Query(ctx, query)
-	if err != nil {
-		return "", err
-	}
-	columns, err := database.Columns(rows)
-	if err != nil {
-		return "", err
-	}
-	stringRows, err := database.ScanRows(rows, len(columns))
-	if err != nil {
-		return "", err
-	}
-
-	buf := new(bytes.Buffer)
-	if vertical {
-		table := newVerticalTableWriter(buf)
-		table.setHeaders(columns)
-		for _, stringRow := range stringRows {
-			table.appendRow(stringRow)
-		}
-		table.render()
-	} else {
-		table := tablewriter.NewWriter(buf)
-		table.SetHeader(columns)
-		for _, stringRow := range stringRows {
-			table.Append(stringRow)
-		}
-		table.Render()
-	}
-	fmt.Fprintf(buf, "%d rows in set", len(stringRows))
-	fmt.Fprintln(buf, "")
-	fmt.Fprintln(buf, "")
-	return buf.String(), nil
+func (that *Server) Conn() *database.DBConnection {
+	return that.dbConn
 }
 
-func (that *Server) exec(ctx context.Context, query string, vertical bool) (string, error) {
-	repo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return "", err
-	}
-	result, err := repo.Exec(ctx, query)
-	if err != nil {
-		return "", err
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return "", err
-	}
-
-	buf := new(bytes.Buffer)
-	fmt.Fprintf(buf, "Query OK, %d row affected", rowsAffected)
-	fmt.Fprintln(buf, "")
-	fmt.Fprintln(buf, "")
-	return buf.String(), nil
+func (that *Server) Open(uri lsp.DocumentURI) command.File {
+	return that.files[uri]
 }
 
-func (that *Server) showDatabases(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	repo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return "", err
-	}
-	databases, err := repo.Databases(ctx)
+func (that *Server) Repository(ctx context.Context) (database.DBRepository, error) {
+	repo, err := database.CreateRepository(that.curDBCfg.Driver, that.dbConn.Conn)
 	if err != nil {
 		return nil, err
 	}
-	return strings.Join(databases, "\n"), nil
+	return repo, nil
 }
 
-func (that *Server) showSchemas(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	repo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return "", err
+func (that *Server) Config() *config.Config {
+	var cfg *config.Config
+	switch {
+	case validConfig(that.SpecificFileCfg):
+		cfg = that.SpecificFileCfg
+	case validConfig(that.WSCfg):
+		cfg = that.WSCfg
+	case validConfig(that.DefaultFileCfg):
+		cfg = that.DefaultFileCfg
+	default:
+		cfg = config.NewConfig()
 	}
-	schemas, err := repo.Schemas(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return strings.Join(schemas, "\n"), nil
+	return cfg
 }
 
-func (that *Server) switchDatabase(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	if len(params.Arguments) != 1 {
-		return nil, fmt.Errorf("required arguments were not provided: <DB Name>")
-	}
-	dbName := string(params.Arguments[0])
-	// Change current database
-	that.curDBName = dbName
-
-	// close and reconnection to database
-	if err := that.reconnectionDB(ctx); err != nil {
-		return nil, err
+func (that *Server) Reconnection(ctx context.Context) error {
+	if err := that.dbConn.Close(); err != nil {
+		return err
 	}
 
-	return nil, nil
+	dbConn, err := that.newDBConnection(ctx)
+	if err != nil {
+		return err
+	}
+	that.dbConn = dbConn
+	dbRepo, err := that.Repository(ctx)
+	if err != nil {
+		return err
+	}
+	if err := that.worker.ReCache(ctx, dbRepo); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (that *Server) showConnections(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	var results []string
-	conns := that.getConfig().Connections
-	for i, conn := range conns {
-		var desc string
-		if conn.DataSourceName != "" {
-			desc = conn.DataSourceName
-		} else {
-			switch conn.Proto {
-			case config.ProtoTCP:
-				desc = fmt.Sprintf("tcp(%s:%d)/%s", conn.Host, conn.Port, conn.DBName)
-			case config.ProtoUDP:
-				desc = fmt.Sprintf("udp(%s:%d)/%s", conn.Host, conn.Port, conn.DBName)
-			case config.ProtoUnix:
-				desc = fmt.Sprintf("unix(%s)/%s", conn.Path, conn.DBName)
-			}
-		}
-		res := fmt.Sprintf("%d %s %s %s", i+1, conn.Driver, conn.Alias, desc)
-		results = append(results, res)
-	}
-	return strings.Join(results, "\n"), nil
-}
+func (that *Server) Exchange(kind command.ExchangeKind, name string) error {
+	switch kind {
+	case command.DB:
+		that.curDBName = name
+	case command.Connection:
+		var index int
 
-func (that *Server) switchConnections(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	if len(params.Arguments) != 1 {
-		return nil, fmt.Errorf("required arguments were not provided: <Connection Index>")
-	}
-	indexStr := string(params.Arguments[0])
-	var index int
-
-	cfg := that.getConfig()
-	if cfg != nil {
-		for i, conn := range cfg.Connections {
-			if conn.Alias == indexStr {
-				index = i + 1
-				break
-			}
-		}
-	} else {
-		index, _ = strconv.Atoi(indexStr)
-	}
-
-	if index <= 0 {
-		return nil, fmt.Errorf("specify the connection index as a number, %w", err)
-	}
-	index = index - 1
-
-	// Reconnect database
-	that.curConnectionIndex = index
-
-	// close and reconnection to database
-	if err := that.reconnectionDB(ctx); err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-func (that *Server) showTables(ctx context.Context, params *lsp.ExecuteCommandParams) (result interface{}, err error) {
-	repo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return "", err
-	}
-	m, err := repo.SchemaTables(ctx)
-	if err != nil {
-		return nil, err
-	}
-	schema, err := repo.CurrentSchema(ctx)
-	if err != nil {
-		return nil, err
-	}
-	results := []string{}
-	for k, vv := range m {
-		for _, v := range vv {
-			if k != "" {
-				if schema != k {
-					continue
+		cfg := that.Config()
+		if cfg != nil {
+			for i, conn := range cfg.Connections {
+				if conn.Alias == name {
+					index = i + 1
+					break
 				}
-				results = append(results, k+"."+v)
-			} else {
-				results = append(results, v)
 			}
+		} else {
+			index, _ = strconv.Atoi(name)
 		}
-	}
-	return strings.Join(results, "\n"), nil
-}
 
-func getStatements(text string) ([]*ast.Statement, error) {
-	parsed, err := parser.Parse(text)
-	if err != nil {
-		return nil, err
-	}
-
-	var stmts []*ast.Statement
-	for _, node := range parsed.GetTokens() {
-		stmt, ok := node.(*ast.Statement)
-		if !ok {
-			return nil, fmt.Errorf("invalid type want Statement parsed %T", stmt)
+		if index <= 0 {
+			return fmt.Errorf("specify the connection index as a numbe")
 		}
-		stmts = append(stmts, stmt)
+		index = index - 1
+
+		// Reconnect database
+		that.curConnectionIndex = index
 	}
-	return stmts, nil
-}
-
-type verticalTableWriter struct {
-	writer       io.Writer
-	headers      []string
-	rows         [][]string
-	headerMaxLen int
-}
-
-func newVerticalTableWriter(writer io.Writer) *verticalTableWriter {
-	return &verticalTableWriter{
-		writer: writer,
-	}
-}
-
-func (vtw *verticalTableWriter) setHeaders(headers []string) {
-	vtw.headers = headers
-	for _, h := range headers {
-		length := len(h)
-		if vtw.headerMaxLen < length {
-			vtw.headerMaxLen = length
-		}
-	}
-}
-
-func (vtw *verticalTableWriter) appendRow(row []string) {
-	vtw.rows = append(vtw.rows, row)
-}
-
-func (vtw *verticalTableWriter) render() {
-	for rowNum, row := range vtw.rows {
-		fmt.Fprintf(vtw.writer, "***************************[ %d. row ]***************************", rowNum+1)
-		fmt.Fprintln(vtw.writer, "")
-		for colNum, col := range row {
-			header := vtw.headers[colNum]
-
-			padHeader := fmt.Sprintf("%"+strconv.Itoa(vtw.headerMaxLen)+"s", header)
-			fmt.Fprintf(vtw.writer, "%s | %s", padHeader, col)
-			fmt.Fprintln(vtw.writer, "")
-		}
-	}
+	return nil
 }

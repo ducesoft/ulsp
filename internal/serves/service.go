@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
+	"github.com/ducesoft/ulsp/internal/command"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/rs/zerolog/log"
@@ -15,6 +16,14 @@ import (
 type File struct {
 	LanguageID string
 	Text       string
+}
+
+func (that *File) LID() string {
+	return that.LanguageID
+}
+
+func (that *File) LText() string {
+	return that.Text
 }
 
 func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ParamInitialize) (*lsp.InitializeResult, error) {
@@ -29,12 +38,11 @@ func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params 
 
 	result := &lsp.InitializeResult{
 		Capabilities: lsp.ServerCapabilities{
-			TextDocumentSync:   lsp.Full,
-			HoverProvider:      &lsp.Or_ServerCapabilities_hoverProvider{Value: true},
-			CodeActionProvider: true,
+			TextDocumentSync: lsp.Full,
 			CompletionProvider: &lsp.CompletionOptions{
 				TriggerCharacters: []string{"(", "."},
 			},
+			HoverProvider: &lsp.Or_ServerCapabilities_hoverProvider{Value: true},
 			SignatureHelpProvider: &lsp.SignatureHelpOptions{
 				TriggerCharacters:   []string{"(", ","},
 				RetriggerCharacters: []string{"(", ","},
@@ -43,9 +51,23 @@ func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params 
 				},
 			},
 			DefinitionProvider:              &lsp.Or_ServerCapabilities_definitionProvider{Value: true},
+			DocumentHighlightProvider:       &lsp.Or_ServerCapabilities_documentHighlightProvider{Value: true},
+			DocumentSymbolProvider:          &lsp.Or_ServerCapabilities_documentSymbolProvider{Value: true},
+			CodeActionProvider:              true,
+			ColorProvider:                   &lsp.Or_ServerCapabilities_colorProvider{Value: true},
 			DocumentFormattingProvider:      &lsp.Or_ServerCapabilities_documentFormattingProvider{Value: true},
 			DocumentRangeFormattingProvider: &lsp.Or_ServerCapabilities_documentRangeFormattingProvider{Value: true},
 			RenameProvider:                  true,
+			FoldingRangeProvider:            &lsp.Or_ServerCapabilities_foldingRangeProvider{Value: true},
+			SelectionRangeProvider:          &lsp.Or_ServerCapabilities_selectionRangeProvider{Value: true},
+			ExecuteCommandProvider: &lsp.ExecuteCommandOptions{
+				Commands:                command.Commands(),
+				WorkDoneProgressOptions: lsp.WorkDoneProgressOptions{},
+			},
+		},
+		ServerInfo: &lsp.PServerInfoMsg_initialize{
+			Name:    "LSP",
+			Version: "0.0.1",
 		},
 	}
 
@@ -54,7 +76,7 @@ func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params 
 	// Initialize database database connection
 	// NOTE: If no connection is found at this point, it is possible that the connection settings are sent to workspace config, so don't make an error
 	messenger := lsp.NewLspMessenger(conn)
-	if err = that.reconnectionDB(ctx); err != nil {
+	if err = that.Reconnection(ctx); err != nil {
 		if !errors.Is(ErrNoConnection, err) {
 			if err = messenger.ShowInfo(ctx, err.Error()); err != nil {
 				log.Error().Msgf("send info, %s", err.Error())
@@ -152,7 +174,7 @@ func (that *Server) DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.C
 
 	// Initialize database database connection
 	messenger := lsp.NewLspMessenger(conn)
-	if err := that.reconnectionDB(ctx); err != nil {
+	if err := that.Reconnection(ctx); err != nil {
 		if !errors.Is(ErrNoConnection, err) {
 			if err = messenger.ShowInfo(ctx, err.Error()); err != nil {
 				log.Error().Msgf("send info, %s", err.Error())
@@ -169,25 +191,6 @@ func (that *Server) DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.C
 	return nil
 }
 
-func (that *Server) reconnectionDB(ctx context.Context) error {
-	if err := that.dbConn.Close(); err != nil {
-		return err
-	}
-
-	dbConn, err := that.newDBConnection(ctx)
-	if err != nil {
-		return err
-	}
-	that.dbConn = dbConn
-	dbRepo, err := that.newDBRepository(ctx)
-	if err != nil {
-		return err
-	}
-	if err := that.worker.ReCache(ctx, dbRepo); err != nil {
-		return err
-	}
-	return nil
-}
 
 func (that *Server) newDBConnection(ctx context.Context) (*database.DBConnection, error) {
 	// Get the most preferred DB connection settings
@@ -214,21 +217,13 @@ func (that *Server) newDBConnection(ctx context.Context) (*database.DBConnection
 	return conn, nil
 }
 
-func (that *Server) newDBRepository(ctx context.Context) (database.DBRepository, error) {
-	repo, err := database.CreateRepository(that.curDBCfg.Driver, that.dbConn.Conn)
-	if err != nil {
-		return nil, err
-	}
-	return repo, nil
-}
-
 func (that *Server) topConnection() *config.DBConfig {
 	// if the init config is set, ignore all other connection configs
 	if that.initOptionDBConfig != nil {
 		return that.initOptionDBConfig
 	}
 
-	cfg := that.getConfig()
+	cfg := that.Config()
 	if cfg == nil || len(cfg.Connections) == 0 {
 		return nil
 	}
@@ -236,27 +231,13 @@ func (that *Server) topConnection() *config.DBConfig {
 }
 
 func (that *Server) getConnection(index int) *config.DBConfig {
-	cfg := that.getConfig()
+	cfg := that.Config()
 	if cfg == nil || (index < 0 && len(cfg.Connections) <= index) {
 		return nil
 	}
 	return cfg.Connections[index]
 }
 
-func (that *Server) getConfig() *config.Config {
-	var cfg *config.Config
-	switch {
-	case validConfig(that.SpecificFileCfg):
-		cfg = that.SpecificFileCfg
-	case validConfig(that.WSCfg):
-		cfg = that.WSCfg
-	case validConfig(that.DefaultFileCfg):
-		cfg = that.DefaultFileCfg
-	default:
-		cfg = config.NewConfig()
-	}
-	return cfg
-}
 
 func validConfig(cfg *config.Config) bool {
 	// if cfg != nil && len(cfg.Connections) > 0 {

@@ -20,7 +20,7 @@ func (that *Server) Completion(ctx context.Context, conn *jsonrpc2.Conn, params 
 	} else {
 		c.Driver = ""
 	}
-	completionItems, err := c.Complete(f.Text, params, that.getConfig().LowercaseKeywords)
+	completionItems, err := c.Complete(f.Text, params, that.Config().LowercaseKeywords)
 	if err != nil {
 		return nil, err
 	}

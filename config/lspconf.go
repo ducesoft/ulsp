@@ -19,7 +19,8 @@ var (
 )
 
 type Config struct {
-	LowercaseKeywords bool                 `json:"lowercaseKeywords" yaml:"lowercaseKeywords"`
+	Debug             bool        `json:"debug" yaml:"debug"`
+	LowercaseKeywords bool        `json:"lowercaseKeywords" yaml:"lowercaseKeywords"`
 	Connections       []*DBConfig `json:"connections" yaml:"connections"`
 }
 

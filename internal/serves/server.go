@@ -57,7 +57,9 @@ func NewServer(conf *config.Config, options ...jsonrpc2.ConnOpt) *Server {
 		worker:         worker,
 		options:        options,
 	}
-	server.options = append(server.options, jsonrpc2.LogMessages(server))
+	if conf.Debug {
+		server.options = append(server.options, jsonrpc2.LogMessages(server))
+	}
 	return server
 }
 
@@ -78,6 +80,17 @@ func (that *Server) Stop() error {
 		return err
 	}
 	that.worker.Stop()
+	return nil
+}
+
+func (that *Server) Refresh(ctx context.Context) error {
+	repo, err := that.Repository(ctx)
+	if nil != err {
+		return err
+	}
+	if err = that.worker.ReCache(ctx, repo); nil != err {
+		return err
+	}
 	return nil
 }
 
