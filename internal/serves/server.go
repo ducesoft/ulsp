@@ -13,11 +13,10 @@ import (
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
 	"github.com/ducesoft/ulsp/lsp"
 	ws "github.com/gorilla/websocket"
-	"github.com/sourcegraph/jsonrpc2"
-	"github.com/sourcegraph/jsonrpc2/websocket"
 	"net/http"
 	"os"
 	"time"
@@ -103,7 +102,7 @@ func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 		}()
 		wc := jsonrpc2.NewConn(
 			ctx,
-			websocket.NewObjectStream(c),
+			jsonrpc2.NewObjectStream(c),
 			jsonrpc2.HandlerWithError(that.ServeRPC),
 			that.options...)
 		<-wc.DisconnectNotify()

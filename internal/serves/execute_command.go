@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/ducesoft/ulsp/internal/database"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 
 func (that *Server) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.CodeActionParams) ([]lsp.CodeAction, error) {

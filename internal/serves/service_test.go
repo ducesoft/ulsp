@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/lsp"

@@ -96,7 +96,7 @@ func writeclient() {
 		`import (
 	"context"
 	"encoding/json"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 `)
 	out.WriteString("type Client interface {\n")
@@ -132,7 +132,7 @@ func writeserver() {
 		`import (
 	"context"
 	"encoding/json"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 `)
 	out.WriteString("type Server interface {\n")

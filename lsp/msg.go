@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 
 type Messenger interface {

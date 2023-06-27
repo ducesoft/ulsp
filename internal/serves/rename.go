@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
 	"github.com/ducesoft/ulsp/parser/parseutil"
 	"github.com/ducesoft/ulsp/token"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 func (that *Server) Rename(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.RenameParams) (*lsp.WorkspaceEdit, error) {

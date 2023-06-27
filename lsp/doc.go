@@ -18,8 +18,8 @@ package lsp
 import (
 	"context"
 	"encoding/json"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
-	"github.com/sourcegraph/jsonrpc2"
 	"io"
 	"runtime/debug"
 )

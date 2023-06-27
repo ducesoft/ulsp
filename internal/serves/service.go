@@ -8,9 +8,9 @@ import (
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/command"
 	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 type File struct {

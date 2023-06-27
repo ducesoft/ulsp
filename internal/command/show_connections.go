@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/i18n"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/sourcegraph/jsonrpc2"
 	"strings"
 )
 

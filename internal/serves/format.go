@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ducesoft/ulsp/internal/formatter"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 func (that *Server) Formatting(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.DocumentFormattingParams) ([]lsp.TextEdit, error) {

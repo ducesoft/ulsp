@@ -7,11 +7,11 @@ import (
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
 	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
 	"github.com/ducesoft/ulsp/parser/parseutil"
 	"github.com/ducesoft/ulsp/token"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 var ErrNoHover = errors.New("no hover infomation found")

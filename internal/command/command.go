@@ -11,8 +11,8 @@ import (
 	"context"
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 func Load(command string) Command {

@@ -13,7 +13,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.29.1
-	github.com/sourcegraph/jsonrpc2 v0.2.0
 	golang.org/x/crypto v0.10.0
 	golang.org/x/text v0.10.0
 	gopkg.in/yaml.v2 v2.4.0

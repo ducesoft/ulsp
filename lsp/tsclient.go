@@ -13,7 +13,7 @@ package lsp
 import (
 	"context"
 	"encoding/json"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 
 type Client interface {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ducesoft/ulsp/internal/completer"
+	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/sourcegraph/jsonrpc2"
 )
 
 func (that *Server) Completion(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.CompletionParams) (*lsp.CompletionList, error) {
