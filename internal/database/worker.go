@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"sync"
 )
 
@@ -42,20 +42,21 @@ func (w *Worker) setColumnCache(col map[string][]*ColumnDesc) {
 
 func (w *Worker) Start() {
 	go func() {
-		log.Info().Msg("LSP server worker has been started. ")
+		ctx := context.Background()
+		log.Info(ctx, "LSP server worker has been started. ")
 		for {
 			select {
 			case <-w.done:
-				log.Info().Msg("LSP server worker has been stopped. ")
+				log.Info(ctx, "LSP server worker has been stopped. ")
 				return
 			case <-w.update:
 				generator := NewDBCacheUpdater(w.dbRepo)
 				col, err := generator.GenerateDBCacheSecondary(context.Background())
 				if err != nil {
-					log.Error().Err(err)
+					log.Error(ctx, err.Error())
 				}
 				w.setColumnCache(col)
-				log.Info().Msg("LSP server worker update db cache secondary complete")
+				log.Info(ctx, "LSP server worker update db cache secondary complete")
 			}
 		}
 	}()
@@ -81,7 +82,7 @@ func (w *Worker) updateAllCache(ctx context.Context) error {
 		return err
 	}
 	w.setCache(cache)
-	log.Info().Msg("db worker: Update db cache primary complete")
+	log.Info(ctx, "db worker: Update db cache primary complete")
 	return nil
 }
 

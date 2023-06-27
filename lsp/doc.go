@@ -18,9 +18,7 @@ package lsp
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"github.com/sourcegraph/jsonrpc2"
 	"io"
 	"runtime/debug"
@@ -31,8 +29,6 @@ var (
 	ErrMethodNotFound   = &jsonrpc2.Error{Code: jsonrpc2.CodeMethodNotFound, Message: "JSON RPC method not found"}
 	ErrCodeParseFn      = func(err error) error { return &jsonrpc2.Error{Code: jsonrpc2.CodeParseError, Message: err.Error()} }
 )
-
-type Replier func(ctx context.Context, result interface{}, err error) error
 
 // Request is the shared interface to jsonrpc2 messages that request
 // a method be invoked.
@@ -72,8 +68,8 @@ type serverDispatcher struct {
 }
 
 func Handle(ctx context.Context, server Server, conn *jsonrpc2.Conn, r *jsonrpc2.Request) (an any, err error) {
-	return PanicEf(func() (any, error) {
-		log.Warn().Msgf("%s,%v", r.Method, r.ID)
+	return PanicEf(ctx, func() (any, error) {
+		log.Warn(ctx, "%s,%v", r.Method, r.ID)
 		if ctx.Err() != nil {
 			return nil, ErrRequestCancelled
 		}
@@ -81,25 +77,19 @@ func Handle(ctx context.Context, server Server, conn *jsonrpc2.Conn, r *jsonrpc2
 	})
 }
 
-func PanicEf[T any](fn func() (T, error)) (r T, err error) {
+func PanicEf[T any](ctx context.Context, fn func() (T, error)) (r T, err error) {
 	defer func() {
-		if cause := recover(); nil != cause {
-			log.Warn().Msg(string(debug.Stack()))
-			err = errors.New(fmt.Sprintf("%v", cause))
+		if c := recover(); nil != c {
+			log.Error(ctx, string(debug.Stack()))
+			err = log.Errorf("%v", c)
 		}
 	}()
 	return fn()
 }
 
-func PanicEfx(fn func() error) error {
-	_, err := PanicEf[any](func() (any, error) {
+func PanicEfx(ctx context.Context, fn func() error) error {
+	_, err := PanicEf[any](ctx, func() (any, error) {
 		return nil, fn()
 	})
 	return err
-}
-
-func Catch(err error) {
-	if nil != err {
-		log.Warn().Err(err)
-	}
 }

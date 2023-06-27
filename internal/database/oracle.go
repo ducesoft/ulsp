@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"strconv"
 
 	"github.com/ducesoft/ulsp/dialect"
@@ -207,7 +207,7 @@ func (db *OracleDBRepository) DescribeDatabaseTableBySchema(ctx context.Context,
 		WHERE OWNER = :1
 `, schemaName)
 	if err != nil {
-		log.Error().Msgf("schema %s, %s", schemaName, err.Error())
+		log.Error(ctx, "schema %s, %s", schemaName, err.Error())
 		return nil, err
 	}
 	tableInfos := []*ColumnDesc{}
@@ -253,7 +253,7 @@ func (db *OracleDBRepository) DescribeForeignKeysBySchema(ctx context.Context, s
 	ORDER BY a.CONSTRAINT_NAME, a.POSITION
 		`, schemaName)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

@@ -11,7 +11,7 @@ import (
 	"context"
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/serves"
-	"github.com/ducesoft/ulsp/lsp"
+	"github.com/ducesoft/ulsp/log"
 	"net/http"
 )
 
@@ -48,10 +48,10 @@ func (that *Server) ListenAndServe(address string, conf *config.Config) (err err
 
 func (that *Server) Stop(ctx context.Context) error {
 	if nil != that.serves {
-		lsp.Catch(that.serves.Stop())
+		log.Catch(that.serves.Stop())
 	}
 	if nil != that.server {
-		lsp.Catch(that.server.Shutdown(ctx))
+		log.Catch(that.server.Shutdown(ctx))
 	}
 	return nil
 }

@@ -2,7 +2,7 @@ package serves
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"net"
 	"reflect"
 	"testing"

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 
 	"github.com/ducesoft/ulsp/dialect"
 	_ "github.com/mattn/go-sqlite3"
@@ -76,7 +76,7 @@ func (db *SQLite3DBRepository) Tables(ctx context.Context) ([]string, error) {
 	  name
 	`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	tables := []string{}
@@ -93,7 +93,7 @@ func (db *SQLite3DBRepository) Tables(ctx context.Context) ([]string, error) {
 func (db *SQLite3DBRepository) describeTable(ctx context.Context, tableName string) ([]*ColumnDesc, error) {
 	rows, err := db.Conn.QueryContext(ctx, fmt.Sprintf("PRAGMA table_info(%s);", tableName))
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	tableInfos := []*ColumnDesc{}
@@ -158,7 +158,7 @@ func (db *SQLite3DBRepository) DescribeForeignKeysBySchema(ctx context.Context, 
 	ORDER BY 1, p."seq"
 		`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

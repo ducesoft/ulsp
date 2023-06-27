@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"net"
 	"strconv"
 
@@ -323,7 +323,7 @@ func (db *MySQLDBRepository) DescribeForeignKeysBySchema(ctx context.Context, sc
 			 kcu.ORDINAL_POSITION
 		`, schemaName)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

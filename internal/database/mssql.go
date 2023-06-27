@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/rs/zerolog/log"
+	"github.com/ducesoft/ulsp/log"
 	"net/url"
 	"strconv"
 
@@ -78,7 +78,7 @@ func (db *MssqlDBRepository) Databases(ctx context.Context) ([]string, error) {
 	SELECT name FROM sys.databases
 	`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	databases := []string{}
@@ -111,7 +111,7 @@ func (db *MssqlDBRepository) Schemas(ctx context.Context) ([]string, error) {
 	SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA
 	`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	databases := []string{}
@@ -173,7 +173,7 @@ func (db *MssqlDBRepository) Tables(ctx context.Context) ([]string, error) {
 	  TABLE_NAME
 	`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	tables := []string{}
@@ -219,7 +219,7 @@ func (db *MssqlDBRepository) DescribeDatabaseTable(ctx context.Context) ([]*Colu
 		c.ORDINAL_POSITION
 	`)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	tableInfos := []*ColumnDesc{}
@@ -277,7 +277,7 @@ func (db *MssqlDBRepository) DescribeDatabaseTableBySchema(ctx context.Context, 
 		c.ORDINAL_POSITION
 	`, schemaName)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer rows.Close()
 	tableInfos := []*ColumnDesc{}
@@ -326,7 +326,7 @@ func (db *MssqlDBRepository) DescribeForeignKeysBySchema(ctx context.Context, sc
 	order by fk.name, fkc.constraint_object_id
 		`, schemaName)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error(ctx, err.Error())
 	}
 	defer func() { _ = rows.Close() }()
 	return parseForeignKeys(rows, schemaName)

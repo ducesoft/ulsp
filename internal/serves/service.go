@@ -8,8 +8,8 @@ import (
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/command"
 	"github.com/ducesoft/ulsp/internal/database"
+	"github.com/ducesoft/ulsp/log"
 	"github.com/ducesoft/ulsp/lsp"
-	"github.com/rs/zerolog/log"
 	"github.com/sourcegraph/jsonrpc2"
 )
 
@@ -79,11 +79,11 @@ func (that *Server) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params 
 	if err = that.Reconnection(ctx); err != nil {
 		if !errors.Is(ErrNoConnection, err) {
 			if err = messenger.ShowInfo(ctx, err.Error()); err != nil {
-				log.Error().Msgf("send info, %s", err.Error())
+				log.Error(ctx, "send info, %s", err.Error())
 				return nil, err
 			}
 		} else {
-			log.Error().Msgf("send err, %s", err.Error())
+			log.Error(ctx, "send err, %s", err.Error())
 			if err = messenger.ShowError(ctx, err.Error()); err != nil {
 				return nil, err
 			}
@@ -177,11 +177,11 @@ func (that *Server) DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.C
 	if err := that.Reconnection(ctx); err != nil {
 		if !errors.Is(ErrNoConnection, err) {
 			if err = messenger.ShowInfo(ctx, err.Error()); err != nil {
-				log.Error().Msgf("send info, %s", err.Error())
+				log.Error(ctx, "send info, %s", err.Error())
 				return err
 			}
 		} else {
-			log.Error().Msgf("send err, %s", err.Error())
+			log.Error(ctx, "send err, %s", err.Error())
 			if err = messenger.ShowError(ctx, err.Error()); err != nil {
 				return err
 			}
@@ -190,7 +190,6 @@ func (that *Server) DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.C
 
 	return nil
 }
-
 
 func (that *Server) newDBConnection(ctx context.Context) (*database.DBConnection, error) {
 	// Get the most preferred DB connection settings
@@ -237,7 +236,6 @@ func (that *Server) getConnection(index int) *config.DBConfig {
 	}
 	return cfg.Connections[index]
 }
-
 
 func validConfig(cfg *config.Config) bool {
 	// if cfg != nil && len(cfg.Connections) > 0 {
