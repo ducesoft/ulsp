@@ -7,9 +7,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/ducesoft/ulsp/log"
 	"os"
 	"testing"
 )
@@ -21,7 +22,6 @@ import (
 // (in vscode, just run the test with  "go.coverOnSingleTest": true)
 func TestAll(t *testing.T) {
 	t.Skip("needs vscode-languageserver-node repository")
-	log.SetFlags(log.Lshortfile)
 	main()
 }
 
@@ -31,12 +31,11 @@ func TestAll(t *testing.T) {
 // commenting out the version field in Model.)
 func TestParseContents(t *testing.T) {
 	t.Skip("needs vscode-languageserver-node repository")
-	log.SetFlags(log.Lshortfile)
 
 	// compute our parse of the specification
 	dir := os.Getenv("HOME") + "/vscode-languageserver-node"
 	fname := dir + "/protocol/metaModel.json"
-	v := parse(fname)
+	v := parse(context.Background(), fname)
 	out, err := json.Marshal(v)
 	if err != nil {
 		t.Fatal(err)
@@ -111,7 +110,7 @@ func flatten(x any) []string {
 		}
 		return ans
 	default:
-		log.Fatalf("unexpected type %T", x)
+		log.Fatal(context.Background(), "unexpected type %T", x)
 		return nil
 	}
 }

@@ -12,11 +12,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/ducesoft/ulsp/log"
 	"go/format"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -41,19 +42,17 @@ var (
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile) // log file name and line number, not time
 	flag.Parse()
-
-	processinline()
+	processinline(context.Background())
 }
 
-func processinline() {
+func processinline(ctx context.Context) {
 	// A local repository may be specified during debugging.
 	// The default behavior is to download the canonical version.
 	if *repodir == "" {
 		tmpdir, err := os.MkdirTemp("", "")
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(ctx, err.Error())
 		}
 		defer os.RemoveAll(tmpdir) // ignore error
 
@@ -62,7 +61,7 @@ func processinline() {
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			log.Fatal(err)
+			log.Fatal(ctx, err.Error())
 		}
 
 		*repodir = tmpdir
@@ -70,26 +69,26 @@ func processinline() {
 		lspGitRef = fmt.Sprintf("(not git, local dir %s)", *repodir)
 	}
 
-	model := parse(filepath.Join(*repodir, "protocol/metaModel.json"))
+	model := parse(ctx, filepath.Join(*repodir, "protocol/metaModel.json"))
 
 	findTypeNames(model)
 	generateOutput(model)
 
-	fileHdr = fileHeader(model)
+	fileHdr = fileHeader(ctx, model)
 
 	// write the files
-	writeclient()
-	writeserver()
-	writeprotocol()
-	writejsons()
+	writeclient(ctx)
+	writeserver(ctx)
+	writeprotocol(ctx)
+	writejsons(ctx)
 
-	checkTables()
+	checkTables(ctx)
 }
 
 // common file header for output files
 var fileHdr string
 
-func writeclient() {
+func writeclient(ctx context.Context) {
 	out := new(bytes.Buffer)
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString(
@@ -117,15 +116,15 @@ func writeclient() {
 	x, err := format.Source(out.Bytes())
 	if err != nil {
 		os.WriteFile("/tmp/a.go", out.Bytes(), 0644)
-		log.Fatalf("tsclient.go: %v", err)
+		log.Fatal(ctx, "tsclient.go: %v", err)
 	}
 
 	if err := os.WriteFile(filepath.Join(*outputdir, "tsclient.go"), x, 0644); err != nil {
-		log.Fatalf("%v writing tsclient.go", err)
+		log.Fatal(ctx, "%v writing tsclient.go", err)
 	}
 }
 
-func writeserver() {
+func writeserver(ctx context.Context) {
 	out := new(bytes.Buffer)
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString(
@@ -182,15 +181,15 @@ func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r R
 	x, err := format.Source(out.Bytes())
 	if err != nil {
 		os.WriteFile("/tmp/a.go", out.Bytes(), 0644)
-		log.Fatalf("tsserver.go: %v", err)
+		log.Fatal(ctx, "tsserver.go: %v", err)
 	}
 
 	if err := os.WriteFile(filepath.Join(*outputdir, "tsserver.go"), x, 0644); err != nil {
-		log.Fatalf("%v writing tsserver.go", err)
+		log.Fatal(ctx, "%v writing tsserver.go", err)
 	}
 }
 
-func writeprotocol() {
+func writeprotocol(ctx context.Context) {
 	out := new(bytes.Buffer)
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString("import \"encoding/json\"\n\n")
@@ -198,7 +197,7 @@ func writeprotocol() {
 	// The followiing are unneeded, but make the new code a superset of the old
 	hack := func(newer, existing string) {
 		if _, ok := types[existing]; !ok {
-			log.Fatalf("types[%q] not found", existing)
+			log.Fatal(ctx, "types[%q] not found", existing)
 		}
 		types[newer] = strings.Replace(types[existing], existing, newer, 1)
 	}
@@ -225,14 +224,14 @@ func writeprotocol() {
 	x, err := format.Source(out.Bytes())
 	if err != nil {
 		os.WriteFile("/tmp/a.go", out.Bytes(), 0644)
-		log.Fatalf("tsprotocol.go: %v", err)
+		log.Fatal(ctx, "tsprotocol.go: %v", err)
 	}
 	if err := os.WriteFile(filepath.Join(*outputdir, "tsprotocol.go"), x, 0644); err != nil {
-		log.Fatalf("%v writing tsprotocol.go", err)
+		log.Fatal(ctx, "%v writing tsprotocol.go", err)
 	}
 }
 
-func writejsons() {
+func writejsons(ctx context.Context) {
 	out := new(bytes.Buffer)
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString("import \"encoding/json\"\n\n")
@@ -256,19 +255,19 @@ func (e UnmarshalError) Error() string {
 	x, err := format.Source(out.Bytes())
 	if err != nil {
 		os.WriteFile("/tmp/a.go", out.Bytes(), 0644)
-		log.Fatalf("tsjson.go: %v", err)
+		log.Fatal(ctx, "tsjson.go: %v", err)
 	}
 	if err := os.WriteFile(filepath.Join(*outputdir, "tsjson.go"), x, 0644); err != nil {
-		log.Fatalf("%v writing tsjson.go", err)
+		log.Fatal(ctx, "%v writing tsjson.go", err)
 	}
 }
 
 // create the common file header for the output files
-func fileHeader(model Model) string {
+func fileHeader(ctx context.Context, model Model) string {
 	fname := filepath.Join(*repodir, ".git", "HEAD")
 	buf, err := os.ReadFile(fname)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(ctx, err.Error())
 	}
 	buf = bytes.TrimSpace(buf)
 	var githash string
@@ -278,11 +277,11 @@ func fileHeader(model Model) string {
 		fname = filepath.Join(*repodir, ".git", string(buf[5:]))
 		buf, err = os.ReadFile(fname)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(ctx, err.Error())
 		}
 		githash = string(buf[:40])
 	} else {
-		log.Fatalf("githash cannot be recovered from %s", fname)
+		log.Fatal(ctx, "githash cannot be recovered from %s", fname)
 	}
 
 	format := `// Copyright 2023 The Go Authors. All rights reserved.
@@ -306,15 +305,15 @@ package lsp
 		model.Version.Version)     // 5
 }
 
-func parse(fname string) Model {
+func parse(ctx context.Context, fname string) Model {
 	buf, err := os.ReadFile(fname)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(ctx, err.Error())
 	}
 	buf = addLineNumbers(buf)
 	var model Model
 	if err := json.Unmarshal(buf, &model); err != nil {
-		log.Fatal(err)
+		log.Fatal(ctx, err.Error())
 	}
 	return model
 }
@@ -378,25 +377,25 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 }
 
 // which table entries were not used
-func checkTables() {
+func checkTables(ctx context.Context) {
 	for k := range disambiguate {
 		if !usedDisambiguate[k] {
-			log.Printf("disambiguate[%v] unused", k)
+			log.Info(ctx, "disambiguate[%v] unused", k)
 		}
 	}
 	for k := range renameProp {
 		if !usedRenameProp[k] {
-			log.Printf("renameProp {%q, %q} unused", k[0], k[1])
+			log.Info(ctx, "renameProp {%q, %q} unused", k[0], k[1])
 		}
 	}
 	for k := range goplsStar {
 		if !usedGoplsStar[k] {
-			log.Printf("goplsStar {%q, %q} unused", k[0], k[1])
+			log.Info(ctx, "goplsStar {%q, %q} unused", k[0], k[1])
 		}
 	}
 	for k := range goplsType {
 		if !usedGoplsType[k] {
-			log.Printf("unused goplsType[%q]->%s", k, goplsType[k])
+			log.Info(ctx, "unused goplsType[%q]->%s", k, goplsType[k])
 		}
 	}
 }

@@ -8,8 +8,9 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
-	"log"
+	"github.com/ducesoft/ulsp/log"
 	"sort"
 	"strings"
 )
@@ -30,28 +31,28 @@ var (
 	jsons = make(sortedMap[string])
 )
 
-func generateOutput(model Model) {
+func generateOutput(ctx context.Context, model Model) {
 	for _, r := range model.Requests {
-		genDecl(r.Method, r.Params, r.Result, r.Direction)
-		genCase(r.Method, r.Params, r.Result, r.Direction)
-		genFunc(r.Method, r.Params, r.Result, r.Direction, false)
+		genDecl(ctx, r.Method, r.Params, r.Result, r.Direction)
+		genCase(ctx, r.Method, r.Params, r.Result, r.Direction)
+		genFunc(ctx, r.Method, r.Params, r.Result, r.Direction, false)
 	}
 	for _, n := range model.Notifications {
 		if n.Method == "$/cancelRequest" {
 			continue // handled internally by jsonrpc2
 		}
-		genDecl(n.Method, n.Params, nil, n.Direction)
-		genCase(n.Method, n.Params, nil, n.Direction)
-		genFunc(n.Method, n.Params, nil, n.Direction, true)
+		genDecl(ctx, n.Method, n.Params, nil, n.Direction)
+		genCase(ctx, n.Method, n.Params, nil, n.Direction)
+		genFunc(ctx, n.Method, n.Params, nil, n.Direction, true)
 	}
-	genStructs(model)
+	genStructs(ctx, model)
 	genAliases(model)
-	genGenTypes() // generate the unnamed types
-	genConsts(model)
+	genGenTypes(ctx) // generate the unnamed types
+	genConsts(ctx, model)
 	genMarshal()
 }
 
-func genDecl(method string, param, result *Type, dir string) {
+func genDecl(ctx context.Context, method string, param, result *Type, dir string) {
 	fname := methodNames[method]
 	p := ""
 	if notNil(param) {
@@ -83,11 +84,11 @@ func genDecl(method string, param, result *Type, dir string) {
 		sdecls[method] = msg
 		cdecls[method] = msg
 	default:
-		log.Fatalf("impossible direction %q", dir)
+		log.Fatal(ctx, "impossible direction %q", dir)
 	}
 }
 
-func genCase(method string, param, result *Type, dir string) {
+func genCase(ctx context.Context, method string, param, result *Type, dir string) {
 	out := new(bytes.Buffer)
 	fmt.Fprintf(out, "\tcase %q:\n", method)
 	var p string
@@ -124,11 +125,11 @@ func genCase(method string, param, result *Type, dir string) {
 		scases[method] = fmt.Sprintf(msg, "server")
 		ccases[method] = fmt.Sprintf(msg, "client")
 	default:
-		log.Fatalf("impossible direction %q", dir)
+		log.Fatal(ctx, "impossible direction %q", dir)
 	}
 }
 
-func genFunc(method string, param, result *Type, dir string, isnotify bool) {
+func genFunc(ctx context.Context, method string, param, result *Type, dir string, isnotify bool) {
 	out := new(bytes.Buffer)
 	var p, r string
 	var goResult string
@@ -199,11 +200,11 @@ func genFunc(method string, param, result *Type, dir string, isnotify bool) {
 		sfuncs[method] = fmt.Sprintf(msg, "server")
 		cfuncs[method] = fmt.Sprintf(msg, "client")
 	default:
-		log.Fatalf("impossible direction %q", dir)
+		log.Fatal(ctx, "impossible direction %q", dir)
 	}
 }
 
-func genStructs(model Model) {
+func genStructs(ctx context.Context, model Model) {
 	structures := make(map[string]*Structure) // for expanding Extends
 	for _, s := range model.Structures {
 		structures[s.Name] = s
@@ -224,9 +225,9 @@ func genStructs(model Model) {
 				fmt.Fprintf(out, "\t// extends %s\n", ex.Name)
 				props = append(props, structures[ex.Name].Properties...)
 			}
-			genProps(out, props, nm)
+			genProps(ctx, out, props, nm)
 		} else {
-			genProps(out, props, nm)
+			genProps(ctx, out, props, nm)
 			for _, ex := range s.Extends {
 				fmt.Fprintf(out, "\t%s\n", goName(ex.Name))
 			}
@@ -247,13 +248,13 @@ func genStructs(model Model) {
 
 }
 
-func genProps(out *bytes.Buffer, props []NameType, name string) {
+func genProps(ctx context.Context, out *bytes.Buffer, props []NameType, name string) {
 	for _, p := range props {
 		tp := goplsName(p.Type)
 		if newNm, ok := renameProp[prop{name, p.Name}]; ok {
 			usedRenameProp[prop{name, p.Name}] = true
 			if tp == newNm {
-				log.Printf("renameProp useless {%q, %q} for %s", name, p.Name, tp)
+				log.Info(ctx, "renameProp useless {%q, %q} for %s", name, p.Name, tp)
 			}
 			tp = newNm
 		}
@@ -279,7 +280,7 @@ func genAliases(model Model) {
 	}
 }
 
-func genGenTypes() {
+func genGenTypes(ctx context.Context) {
 	for _, nt := range genTypes {
 		out := new(bytes.Buffer)
 		nm := goplsName(nt.typ)
@@ -287,7 +288,7 @@ func genGenTypes() {
 		case "literal":
 			fmt.Fprintf(out, "// created for Literal (%s)\n", nt.name)
 			fmt.Fprintf(out, "type %s struct { // line %d\n", nm, nt.line+1)
-			genProps(out, nt.properties, nt.name) // systematic name, not gopls name; is this a good choice?
+			genProps(ctx, out, nt.properties, nt.name) // systematic name, not gopls name; is this a good choice?
 		case "or":
 			if !strings.HasPrefix(nm, "Or") {
 				// It was replaced by a narrower type defined elsewhere
@@ -316,13 +317,13 @@ func genGenTypes() {
 			fmt.Fprintf(out, "\tFld0 uint32 `json:\"fld0\"`\n")
 			fmt.Fprintf(out, "\tFld1 uint32 `json:\"fld1\"`\n")
 		default:
-			log.Fatalf("%s not handled", nt.kind)
+			log.Fatal(ctx, "%s not handled", nt.kind)
 		}
 		out.WriteString("}\n")
 		types[nm] = out.String()
 	}
 }
-func genConsts(model Model) {
+func genConsts(ctx context.Context, model Model) {
 	for _, e := range model.Enumerations {
 		out := new(bytes.Buffer)
 		generateDoc(out, e.Documentation)
@@ -348,7 +349,7 @@ func genConsts(model Model) {
 			case float64:
 				val = fmt.Sprintf("%d", int(v))
 			default:
-				log.Fatalf("impossible type %T", v)
+				log.Fatal(ctx, "impossible type %T", v)
 			}
 			fmt.Fprintf(vals, "\t%s %s = %s // line %d\n", nm, e.Name, val, v.Line)
 		}

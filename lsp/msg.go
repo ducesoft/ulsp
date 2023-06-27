@@ -2,7 +2,7 @@ package lsp
 
 import (
 	"context"
-	"log"
+	"github.com/ducesoft/ulsp/log"
 
 	"github.com/ducesoft/ulsp/jsonrpc2"
 )
@@ -25,7 +25,7 @@ func NewLspMessenger(conn *jsonrpc2.Conn) Messenger {
 }
 
 func (that *lspMessenger) ShowLog(ctx context.Context, message string) error {
-	log.Println("Send Message:", message)
+	log.Info(ctx, "Send Message: %s", message)
 	params := &ShowMessageParams{
 		Type:    Log,
 		Message: message,
@@ -34,7 +34,7 @@ func (that *lspMessenger) ShowLog(ctx context.Context, message string) error {
 }
 
 func (that *lspMessenger) ShowInfo(ctx context.Context, message string) error {
-	log.Println("Send Message:", message)
+	log.Info(ctx, "Send Message: %s", message)
 	params := &ShowMessageParams{
 		Type:    Info,
 		Message: message,
@@ -43,7 +43,7 @@ func (that *lspMessenger) ShowInfo(ctx context.Context, message string) error {
 }
 
 func (that *lspMessenger) ShowWarning(ctx context.Context, message string) error {
-	log.Println("Send Message:", message)
+	log.Info(ctx, "Send Message: %s", message)
 	params := &ShowMessageParams{
 		Type:    Warning,
 		Message: message,
@@ -52,7 +52,7 @@ func (that *lspMessenger) ShowWarning(ctx context.Context, message string) error
 }
 
 func (that *lspMessenger) ShowError(ctx context.Context, message string) error {
-	log.Println("Send Message:", message)
+	log.Info(ctx, "Send Message: %s", message)
 	params := &ShowMessageParams{
 		Type:    Error,
 		Message: message,

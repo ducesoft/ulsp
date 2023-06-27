@@ -42,13 +42,13 @@ func (tx *TestContext) setup(t *testing.T) {
 func (tx *TestContext) tearDown() {
 	if tx.conn != nil {
 		if err := tx.conn.Close(); err != nil {
-			log.Fatal().Msgf("conn.Close: %v", err)
+			log.Fatal(context.Background(), "conn.Close: %v", err)
 		}
 	}
 
 	if tx.connServer != nil {
 		if err := tx.connServer.Close(); err != nil {
-			log.Fatal().Msgf("connServer.Close: %v", err)
+			log.Fatal(context.Background(), "connServer.Close: %v", err)
 		}
 	}
 }
