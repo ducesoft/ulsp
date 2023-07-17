@@ -105,9 +105,9 @@ func (that *Server) Shutdown(ctx context.Context, conn *jsonrpc2.Conn) error {
 
 func (that *Server) Exit(ctx context.Context, conn *jsonrpc2.Conn) error {
 	if that.dbConn != nil {
-		that.dbConn.Close()
+		return that.dbConn.Close()
 	}
-	return that.Stop()
+	return nil
 }
 
 func (that *Server) DidOpen(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.DidOpenTextDocumentParams) error {
