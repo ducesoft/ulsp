@@ -82,7 +82,7 @@ func PanicEf[T any](ctx context.Context, fn func() (T, error)) (r T, err error) 
 	defer func() {
 		if c := recover(); nil != c {
 			log.Error(ctx, string(debug.Stack()))
-			err = cause.Errorf("%v", c)
+			err = cause.SystemError.New(c)
 		}
 	}()
 	return fn()

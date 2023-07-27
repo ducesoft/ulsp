@@ -10,11 +10,11 @@ import (
 func (that *Server) Completion(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.CompletionParams) (*lsp.CompletionList, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	dfg, err := ctx.DBConfig()
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	c := completer.NewCompleter(ctx.DB())
 	c.Driver = dfg.Driver

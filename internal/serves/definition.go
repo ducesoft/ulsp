@@ -15,7 +15,7 @@ import (
 func (that *Server) Definition(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DefinitionParams) ([]lsp.Location, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	return definition(params.TextDocument.URI, f.Text, params, ctx.DB())
 }

@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.cayley.gremlin</groupId>
-    <artifactId>gremlin</artifactId>
+    <groupId>io.jiumi.ulsp</groupId>
+    <artifactId>ulsp</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1</version>
     <properties>
@@ -14,7 +14,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4</artifactId>
-                <version>4.12.0</version>
+                <version>4.13.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -57,15 +57,15 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.12.0</version>
+                <version>4.13.0</version>
                 <configuration>
                     <arguments>
                         <argument>-Dlanguage=Go</argument>
                     </arguments>
-                    <visitor>false</visitor>
-                    <listener>false</listener>
+                    <visitor>true</visitor>
+                    <listener>true</listener>
                     <sourceDirectory>./</sourceDirectory>
-                    <outputDirectory>../internal/parser</outputDirectory>
+                    <outputDirectory>../../internal/parser/mysql</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>

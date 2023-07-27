@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -27,7 +26,7 @@ func TestGetConfig(t *testing.T) {
 			},
 			want: &Config{
 				LowercaseKeywords: true,
-				Connections: []*database.DBConfig{
+				Connections: []*DBConfig{
 					{
 						Alias:  "sqls_mysql",
 						Driver: "mysql",
@@ -64,7 +63,7 @@ func TestGetConfig(t *testing.T) {
 						Host:   "192.168.121.163",
 						Port:   3306,
 						DBName: "world",
-						SSHCfg: &database.SSHConfig{
+						SSHCfg: &SSHConfig{
 							Host:       "192.168.121.168",
 							Port:       22,
 							User:       "vagrant",
@@ -163,7 +162,7 @@ func TestGetConfig(t *testing.T) {
 				fp: "oracle.yaml",
 			},
 			want: &Config{
-				Connections: []*database.DBConfig{
+				Connections: []*DBConfig{
 					{
 						Alias:          "TestDB",
 						Driver:         "oracle",

@@ -3,7 +3,6 @@ package serves
 import (
 	"encoding/json"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/ducesoft/ulsp/internal/command"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 )
@@ -36,10 +35,6 @@ func (that *Server) Initialize(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp
 			RenameProvider:                  true,
 			FoldingRangeProvider:            &lsp.Or_ServerCapabilities_foldingRangeProvider{Value: true},
 			SelectionRangeProvider:          &lsp.Or_ServerCapabilities_selectionRangeProvider{Value: true},
-			ExecuteCommandProvider: &lsp.ExecuteCommandOptions{
-				Commands:                command.Commands(),
-				WorkDoneProgressOptions: lsp.WorkDoneProgressOptions{},
-			},
 		},
 		ServerInfo: &lsp.PServerInfoMsg_initialize{
 			Name:    "LSP",

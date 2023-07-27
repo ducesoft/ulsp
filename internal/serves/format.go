@@ -10,7 +10,7 @@ import (
 func (that *Server) Formatting(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DocumentFormattingParams) ([]lsp.TextEdit, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	textEdits, err := formatter.Format(f.Text, params, ctx.Config())
 	if err != nil {
@@ -25,7 +25,7 @@ func (that *Server) Formatting(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp
 func (that *Server) RangeFormatting(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DocumentRangeFormattingParams) ([]lsp.TextEdit, error) {
 	_, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	textEdits := []lsp.TextEdit{}
 	if len(textEdits) > 0 {

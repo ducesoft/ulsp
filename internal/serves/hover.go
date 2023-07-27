@@ -18,7 +18,7 @@ var ErrNoHover = errors.New("no hover infomation found")
 func (that *Server) Hover(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.HoverParams) (*lsp.Hover, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	res, err := hover(f.Text, params, ctx.DB())
 	if err != nil {

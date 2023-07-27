@@ -13,7 +13,7 @@ import (
 func (that *Server) SignatureHelp(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.SignatureHelpParams) (*lsp.SignatureHelp, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	parsed, err := parser.Parse(f.Text)
 	if err != nil {

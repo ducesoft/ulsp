@@ -54,7 +54,7 @@ func (that *executor) Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.Exe
 	uri := lsp.DocumentURI(params.Arguments[0])
 	f, err := ctx.Open(uri)
 	if nil == err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	showVertical := false
 	if len(params.Arguments) > 1 {

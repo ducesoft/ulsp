@@ -15,6 +15,15 @@ import (
 	"strings"
 )
 
+type Codeable interface {
+
+	// GetCode Get the code.
+	GetCode() string
+
+	// GetMessage Get the message.
+	GetMessage() string
+}
+
 type Cause struct {
 	code string
 	at   string
@@ -36,7 +45,7 @@ func (that *Cause) GetMessage() string {
 	return that.err.Error()
 }
 
-func Errors(err error) error {
+func Error(err error) error {
 	if nil == err {
 		return err
 	}
@@ -47,14 +56,6 @@ func Errors(err error) error {
 		code: "E0000000520",
 		at:   Caller(2),
 		err:  err,
-	}
-}
-
-func Errorf(format string, args ...interface{}) error {
-	return &Cause{
-		code: "E0000000520",
-		at:   Caller(2),
-		err:  fmt.Errorf(format, args...),
 	}
 }
 
@@ -95,4 +96,24 @@ func (that *MultiError) Error() string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+type BindError struct {
+	Code   string
+	Format string
+}
+
+func (that *BindError) New(args ...any) error {
+	return &Cause{
+		code: that.Code,
+		at:   Caller(3),
+		err:  fmt.Errorf(that.Format, args...),
+	}
+}
+
+func (that *BindError) Is(err error) bool {
+	if b, ok := err.(Codeable); ok {
+		return b.GetCode() == that.Code
+	}
+	return false
 }

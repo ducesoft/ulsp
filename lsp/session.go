@@ -9,13 +9,13 @@ package lsp
 
 import (
 	"context"
-	"errors"
 	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/config"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
 	"io"
+	"strconv"
 	"time"
 )
 
@@ -24,7 +24,7 @@ func withContext(ctx context.Context, cfg *config.Config, wc *jsonrpc2.Conn) Con
 		return c
 	}
 	return &sct{
-		id:        "",
+		id:        strconv.FormatInt(time.Now().UnixMilli(), 10),
 		db:        "",
 		ctx:       ctx,
 		cfg:       cfg,
@@ -95,7 +95,7 @@ func (that *sct) Open(uri DocumentURI) (*Filer, error) {
 	if f, ok := that.files[uri]; ok {
 		return f, nil
 	}
-	return nil, cause.Errorf("%s not found", string(uri))
+	return nil, cause.FileNotFound.New(uri)
 }
 
 func (that *sct) DB() *database.DBCache {
@@ -103,20 +103,29 @@ func (that *sct) DB() *database.DBCache {
 }
 
 func (that *sct) DBConfig() (*config.DBConfig, error) {
+	if nil == that.dfg {
+		return nil, cause.DBConfigNotSet.New()
+	}
 	return that.dfg, nil
 }
 
 func (that *sct) Repository() (database.DBRepository, error) {
+	if nil == that.repo {
+		return nil, cause.DBConfigNotSet.New()
+	}
 	return that.repo, nil
 }
 
 func (that *sct) Sync(f *Filer) {
-	if x, ok := that.files[f.URI]; ok {
-		x.LanguageID = f.LanguageID
-		x.Text = f.Text
-	} else {
-		that.files[f.URI] = f
+	if f.Removable {
+		delete(that.files, f.URI)
+		return
 	}
+	if x, ok := that.files[f.URI]; ok {
+		x.Text = f.Text
+		return
+	}
+	that.files[f.URI] = f
 }
 
 func (that *sct) Messanger() Messenger {
@@ -129,17 +138,19 @@ func (that *sct) Init(dfg *config.DBConfig) error {
 	// NOTE: If no connection is found at this point,
 	// it is possible that the connection settings are sent to workspace config
 	// so don't make an error
-	if err := that.Reconnection(that); err != nil {
-		if !errors.Is(cause.ErrNoConnection, err) {
-			if err = that.Messanger().ShowInfo(that, err.Error()); err != nil {
-				log.Error(that, "send info, %s", err.Error())
-				return err
-			}
-		} else {
-			log.Error(that, "send err, %s", err.Error())
-			if err = that.Messanger().ShowError(that, err.Error()); err != nil {
-				return err
-			}
+	err := that.Reconnection(that)
+	if nil == err {
+		return nil
+	}
+	if !cause.ErrNoConnection.Is(err) {
+		if err = that.Messanger().ShowInfo(that, err.Error()); err != nil {
+			log.Error(that, "send info, %s", err.Error())
+			return err
+		}
+	} else {
+		log.Error(that, "send err, %s", err.Error())
+		if err = that.Messanger().ShowError(that, err.Error()); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -161,7 +172,7 @@ func (that *sct) Close() error {
 
 func (that *sct) Reconnection(ctx context.Context) (err error) {
 	if nil == that.dfg {
-		return cause.Errorf("not found database connection config")
+		return cause.ErrNoConnection.New()
 	}
 	that.conn, err = database.Open(that.dfg)
 	if nil != err {

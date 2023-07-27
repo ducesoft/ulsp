@@ -7,8 +7,9 @@
 
 package cause
 
-import "errors"
-
 var (
-	ErrNoConnection = errors.New("no database connection")
+	SystemError     = &BindError{Code: "E0000000520", Format: "%v"}
+	ErrNoConnection = &BindError{Code: "E0000000520", Format: "Not found database connection config"}
+	FileNotFound    = &BindError{Code: "E0000000520", Format: "File %v not found"}
+	DBConfigNotSet  = &BindError{Code: "E0000000520", Format: "DBConfig not set"}
 )

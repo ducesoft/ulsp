@@ -14,7 +14,7 @@ import (
 func (that *Server) Rename(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.RenameParams) (*lsp.WorkspaceEdit, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
-		return nil, cause.Errors(err)
+		return nil, cause.Error(err)
 	}
 	parsed, err := parser.Parse(f.Text)
 	if err != nil {
