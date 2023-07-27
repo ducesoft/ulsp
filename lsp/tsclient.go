@@ -11,34 +11,33 @@ package lsp
 // LSP metaData.version = 3.17.0.
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 
 type Client interface {
-	LogTrace(ctx context.Context, conn *jsonrpc2.Conn, params *LogTraceParams) error                                           // $/logTrace
-	Progress(ctx context.Context, conn *jsonrpc2.Conn, params *ProgressParams) error                                           // $/progress
-	RegisterCapability(ctx context.Context, conn *jsonrpc2.Conn, params *RegistrationParams) error                             // client/registerCapability
-	UnregisterCapability(ctx context.Context, conn *jsonrpc2.Conn, params *UnregistrationParams) error                         // client/unregisterCapability
-	Event(ctx context.Context, conn *jsonrpc2.Conn, params *interface{}) error                                                 // telemetry/event
-	PublishDiagnostics(ctx context.Context, conn *jsonrpc2.Conn, params *PublishDiagnosticsParams) error                       // textDocument/publishDiagnostics
-	LogMessage(ctx context.Context, conn *jsonrpc2.Conn, params *LogMessageParams) error                                       // window/logMessage
-	ShowDocument(ctx context.Context, conn *jsonrpc2.Conn, params *ShowDocumentParams) (*ShowDocumentResult, error)            // window/showDocument
-	ShowMessage(ctx context.Context, conn *jsonrpc2.Conn, params *ShowMessageParams) error                                     // window/showMessage
-	ShowMessageRequest(ctx context.Context, conn *jsonrpc2.Conn, params *ShowMessageRequestParams) (*MessageActionItem, error) // window/showMessageRequest
-	WorkDoneProgressCreate(ctx context.Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCreateParams) error               // window/workDoneProgress/create
-	ApplyEdit(ctx context.Context, conn *jsonrpc2.Conn, params *ApplyWorkspaceEditParams) (*ApplyWorkspaceEditResult, error)   // workspace/applyEdit
-	CodeLensRefresh(ctx context.Context, conn *jsonrpc2.Conn) error                                                            // workspace/codeLens/refresh
-	Configuration(ctx context.Context, conn *jsonrpc2.Conn, params *ParamConfiguration) ([]LSPAny, error)                      // workspace/configuration
-	DiagnosticRefresh(ctx context.Context, conn *jsonrpc2.Conn) error                                                          // workspace/diagnostic/refresh
-	InlayHintRefresh(ctx context.Context, conn *jsonrpc2.Conn) error                                                           // workspace/inlayHint/refresh
-	InlineValueRefresh(ctx context.Context, conn *jsonrpc2.Conn) error                                                         // workspace/inlineValue/refresh
-	SemanticTokensRefresh(ctx context.Context, conn *jsonrpc2.Conn) error                                                      // workspace/semanticTokens/refresh
-	WorkspaceFolders(ctx context.Context, conn *jsonrpc2.Conn) ([]WorkspaceFolder, error)                                      // workspace/workspaceFolders
+	LogTrace(ctx Context, conn *jsonrpc2.Conn, params *LogTraceParams) error                                           // $/logTrace
+	Progress(ctx Context, conn *jsonrpc2.Conn, params *ProgressParams) error                                           // $/progress
+	RegisterCapability(ctx Context, conn *jsonrpc2.Conn, params *RegistrationParams) error                             // client/registerCapability
+	UnregisterCapability(ctx Context, conn *jsonrpc2.Conn, params *UnregistrationParams) error                         // client/unregisterCapability
+	Event(ctx Context, conn *jsonrpc2.Conn, params *interface{}) error                                                 // telemetry/event
+	PublishDiagnostics(ctx Context, conn *jsonrpc2.Conn, params *PublishDiagnosticsParams) error                       // textDocument/publishDiagnostics
+	LogMessage(ctx Context, conn *jsonrpc2.Conn, params *LogMessageParams) error                                       // window/logMessage
+	ShowDocument(ctx Context, conn *jsonrpc2.Conn, params *ShowDocumentParams) (*ShowDocumentResult, error)            // window/showDocument
+	ShowMessage(ctx Context, conn *jsonrpc2.Conn, params *ShowMessageParams) error                                     // window/showMessage
+	ShowMessageRequest(ctx Context, conn *jsonrpc2.Conn, params *ShowMessageRequestParams) (*MessageActionItem, error) // window/showMessageRequest
+	WorkDoneProgressCreate(ctx Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCreateParams) error               // window/workDoneProgress/create
+	ApplyEdit(ctx Context, conn *jsonrpc2.Conn, params *ApplyWorkspaceEditParams) (*ApplyWorkspaceEditResult, error)   // workspace/applyEdit
+	CodeLensRefresh(ctx Context, conn *jsonrpc2.Conn) error                                                            // workspace/codeLens/refresh
+	Configuration(ctx Context, conn *jsonrpc2.Conn, params *ParamConfiguration) ([]LSPAny, error)                      // workspace/configuration
+	DiagnosticRefresh(ctx Context, conn *jsonrpc2.Conn) error                                                          // workspace/diagnostic/refresh
+	InlayHintRefresh(ctx Context, conn *jsonrpc2.Conn) error                                                           // workspace/inlayHint/refresh
+	InlineValueRefresh(ctx Context, conn *jsonrpc2.Conn) error                                                         // workspace/inlineValue/refresh
+	SemanticTokensRefresh(ctx Context, conn *jsonrpc2.Conn) error                                                      // workspace/semanticTokens/refresh
+	WorkspaceFolders(ctx Context, conn *jsonrpc2.Conn) ([]WorkspaceFolder, error)                                      // workspace/workspaceFolders
 }
 
-func clientDispatch(ctx context.Context, client Client, conn *jsonrpc2.Conn, r Request) (any, error) {
+func clientDispatch(ctx Context, client Client, conn *jsonrpc2.Conn, r Request) (any, error) {
 	switch r.Method() {
 	case "$/logTrace":
 		var params LogTraceParams
@@ -169,77 +168,77 @@ func clientDispatch(ctx context.Context, client Client, conn *jsonrpc2.Conn, r R
 	}
 }
 
-func (s *clientDispatcher) LogTrace(ctx context.Context, params *LogTraceParams) error {
+func (s *clientDispatcher) LogTrace(ctx Context, params *LogTraceParams) error {
 	return s.sender.Notify(ctx, "$/logTrace", params)
 }
-func (s *clientDispatcher) Progress(ctx context.Context, params *ProgressParams) error {
+func (s *clientDispatcher) Progress(ctx Context, params *ProgressParams) error {
 	return s.sender.Notify(ctx, "$/progress", params)
 }
-func (s *clientDispatcher) RegisterCapability(ctx context.Context, params *RegistrationParams) error {
+func (s *clientDispatcher) RegisterCapability(ctx Context, params *RegistrationParams) error {
 	return s.sender.Call(ctx, "client/registerCapability", params, nil)
 }
-func (s *clientDispatcher) UnregisterCapability(ctx context.Context, params *UnregistrationParams) error {
+func (s *clientDispatcher) UnregisterCapability(ctx Context, params *UnregistrationParams) error {
 	return s.sender.Call(ctx, "client/unregisterCapability", params, nil)
 }
-func (s *clientDispatcher) Event(ctx context.Context, params *interface{}) error {
+func (s *clientDispatcher) Event(ctx Context, params *interface{}) error {
 	return s.sender.Notify(ctx, "telemetry/event", params)
 }
-func (s *clientDispatcher) PublishDiagnostics(ctx context.Context, params *PublishDiagnosticsParams) error {
+func (s *clientDispatcher) PublishDiagnostics(ctx Context, params *PublishDiagnosticsParams) error {
 	return s.sender.Notify(ctx, "textDocument/publishDiagnostics", params)
 }
-func (s *clientDispatcher) LogMessage(ctx context.Context, params *LogMessageParams) error {
+func (s *clientDispatcher) LogMessage(ctx Context, params *LogMessageParams) error {
 	return s.sender.Notify(ctx, "window/logMessage", params)
 }
-func (s *clientDispatcher) ShowDocument(ctx context.Context, params *ShowDocumentParams) (*ShowDocumentResult, error) {
+func (s *clientDispatcher) ShowDocument(ctx Context, params *ShowDocumentParams) (*ShowDocumentResult, error) {
 	var result *ShowDocumentResult
 	if err := s.sender.Call(ctx, "window/showDocument", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *clientDispatcher) ShowMessage(ctx context.Context, params *ShowMessageParams) error {
+func (s *clientDispatcher) ShowMessage(ctx Context, params *ShowMessageParams) error {
 	return s.sender.Notify(ctx, "window/showMessage", params)
 }
-func (s *clientDispatcher) ShowMessageRequest(ctx context.Context, params *ShowMessageRequestParams) (*MessageActionItem, error) {
+func (s *clientDispatcher) ShowMessageRequest(ctx Context, params *ShowMessageRequestParams) (*MessageActionItem, error) {
 	var result *MessageActionItem
 	if err := s.sender.Call(ctx, "window/showMessageRequest", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *clientDispatcher) WorkDoneProgressCreate(ctx context.Context, params *WorkDoneProgressCreateParams) error {
+func (s *clientDispatcher) WorkDoneProgressCreate(ctx Context, params *WorkDoneProgressCreateParams) error {
 	return s.sender.Call(ctx, "window/workDoneProgress/create", params, nil)
 }
-func (s *clientDispatcher) ApplyEdit(ctx context.Context, params *ApplyWorkspaceEditParams) (*ApplyWorkspaceEditResult, error) {
+func (s *clientDispatcher) ApplyEdit(ctx Context, params *ApplyWorkspaceEditParams) (*ApplyWorkspaceEditResult, error) {
 	var result *ApplyWorkspaceEditResult
 	if err := s.sender.Call(ctx, "workspace/applyEdit", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *clientDispatcher) CodeLensRefresh(ctx context.Context) error {
+func (s *clientDispatcher) CodeLensRefresh(ctx Context) error {
 	return s.sender.Call(ctx, "workspace/codeLens/refresh", nil, nil)
 }
-func (s *clientDispatcher) Configuration(ctx context.Context, params *ParamConfiguration) ([]LSPAny, error) {
+func (s *clientDispatcher) Configuration(ctx Context, params *ParamConfiguration) ([]LSPAny, error) {
 	var result []LSPAny
 	if err := s.sender.Call(ctx, "workspace/configuration", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *clientDispatcher) DiagnosticRefresh(ctx context.Context) error {
+func (s *clientDispatcher) DiagnosticRefresh(ctx Context) error {
 	return s.sender.Call(ctx, "workspace/diagnostic/refresh", nil, nil)
 }
-func (s *clientDispatcher) InlayHintRefresh(ctx context.Context) error {
+func (s *clientDispatcher) InlayHintRefresh(ctx Context) error {
 	return s.sender.Call(ctx, "workspace/inlayHint/refresh", nil, nil)
 }
-func (s *clientDispatcher) InlineValueRefresh(ctx context.Context) error {
+func (s *clientDispatcher) InlineValueRefresh(ctx Context) error {
 	return s.sender.Call(ctx, "workspace/inlineValue/refresh", nil, nil)
 }
-func (s *clientDispatcher) SemanticTokensRefresh(ctx context.Context) error {
+func (s *clientDispatcher) SemanticTokensRefresh(ctx Context) error {
 	return s.sender.Call(ctx, "workspace/semanticTokens/refresh", nil, nil)
 }
-func (s *clientDispatcher) WorkspaceFolders(ctx context.Context) ([]WorkspaceFolder, error) {
+func (s *clientDispatcher) WorkspaceFolders(ctx Context) ([]WorkspaceFolder, error) {
 	var result []WorkspaceFolder
 	if err := s.sender.Call(ctx, "workspace/workspaceFolders", nil, &result); err != nil {
 		return nil, err

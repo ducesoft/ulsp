@@ -2,9 +2,8 @@ package lsp
 
 import (
 	"context"
-	"github.com/ducesoft/ulsp/log"
-
 	"github.com/ducesoft/ulsp/jsonrpc2"
+	"github.com/ducesoft/ulsp/log"
 )
 
 type Messenger interface {

@@ -8,9 +8,6 @@
 package command
 
 import (
-	"context"
-	"github.com/ducesoft/ulsp/config"
-	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 )
@@ -45,17 +42,8 @@ type File interface {
 	LText() string
 }
 
-type LS interface {
-	Conn() *database.DBConnection
-	Open(uri lsp.DocumentURI) File
-	Repository(ctx context.Context) (database.DBRepository, error)
-	Config() *config.Config
-	Reconnection(ctx context.Context) error
-	Exchange(kind ExchangeKind, name string) error
-}
-
 type Command interface {
 	Name() string
-	Attr(ctx context.Context, params *lsp.CodeActionParams) *lsp.CodeAction
-	Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams, ls LS) (any, error)
+	Attr(ctx lsp.Context, params *lsp.CodeActionParams) *lsp.CodeAction
+	Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (any, error)
 }

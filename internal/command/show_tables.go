@@ -8,7 +8,6 @@
 package command
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/ducesoft/ulsp/internal/i18n"
 	"github.com/ducesoft/ulsp/jsonrpc2"
@@ -27,7 +26,7 @@ func (that *showTables) Name() string {
 	return "code/switchDatabase"
 }
 
-func (that *showTables) Attr(ctx context.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
+func (that *showTables) Attr(ctx lsp.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
 	return &lsp.CodeAction{
 		Title: i18n.Sprintf(ctx, "Show Tables"),
 		Kind:  lsp.Empty,
@@ -39,8 +38,8 @@ func (that *showTables) Attr(ctx context.Context, params *lsp.CodeActionParams) 
 	}
 }
 
-func (that *showTables) Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams, ls LS) (any, error) {
-	repo, err := ls.Repository(ctx)
+func (that *showTables) Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (any, error) {
+	repo, err := ctx.Repository()
 	if err != nil {
 		return "", err
 	}

@@ -8,7 +8,6 @@
 package command
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/ducesoft/ulsp/config"
@@ -29,7 +28,7 @@ func (that *showConnections) Name() string {
 	return "code/switchConnection"
 }
 
-func (that *showConnections) Attr(ctx context.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
+func (that *showConnections) Attr(ctx lsp.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
 	return &lsp.CodeAction{
 		Title: i18n.Sprintf(ctx, "Show Connections"),
 		Kind:  lsp.Empty,
@@ -41,9 +40,9 @@ func (that *showConnections) Attr(ctx context.Context, params *lsp.CodeActionPar
 	}
 }
 
-func (that *showConnections) Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams, ls LS) (any, error) {
+func (that *showConnections) Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (any, error) {
 	var results []string
-	conns := ls.Config().Connections
+	conns := ctx.Config().Connections
 	for i, cf := range conns {
 		var desc string
 		if cf.DataSourceName != "" {

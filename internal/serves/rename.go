@@ -1,10 +1,9 @@
 package serves
 
 import (
-	"context"
-	"fmt"
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
@@ -12,12 +11,11 @@ import (
 	"github.com/ducesoft/ulsp/token"
 )
 
-func (that *Server) Rename(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.RenameParams) (*lsp.WorkspaceEdit, error) {
-	f, ok := that.files[params.TextDocument.URI]
-	if !ok {
-		return nil, fmt.Errorf("document not found: %s", params.TextDocument.URI)
+func (that *Server) Rename(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.RenameParams) (*lsp.WorkspaceEdit, error) {
+	f, err := ctx.Open(params.TextDocument.URI)
+	if nil != err {
+		return nil, cause.Errors(err)
 	}
-
 	parsed, err := parser.Parse(f.Text)
 	if err != nil {
 		return nil, err

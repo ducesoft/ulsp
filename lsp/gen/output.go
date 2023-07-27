@@ -74,7 +74,7 @@ func genDecl(ctx context.Context, method string, param, result *Type, dir string
 		p = ", params *ParamConfiguration"
 		ret = "([]LSPAny, error)"
 	}
-	msg := fmt.Sprintf("\t%s(ctx context.Context, conn *jsonrpc2.Conn%s) %s // %s\n", fname, p, ret, method)
+	msg := fmt.Sprintf("\t%s(ctx Context, conn *jsonrpc2.Conn%s) %s // %s\n", fname, p, ret, method)
 	switch dir {
 	case "clientToServer":
 		sdecls[method] = msg
@@ -155,7 +155,7 @@ func genFunc(ctx context.Context, method string, param, result *Type, dir string
 		goResult = "[]LSPAny"
 	}
 	fname := methodNames[method]
-	fmt.Fprintf(out, "func (s *%%sDispatcher) %s(ctx context.Context%s) %s {\n",
+	fmt.Fprintf(out, "func (s *%%sDispatcher) %s(ctx Context%s) %s {\n",
 		fname, p, r)
 
 	if !notNil(result) {

@@ -42,7 +42,7 @@ var _ JSONRPC2 = (*Conn)(nil)
 //
 // NewClient consumes conn, so you should call Close on the returned
 // client not on the given conn.
-func NewConn(ctx context.Context, stream ObjectStream, h Handler, opts ...ConnOpt) *Conn {
+func NewConn(stream ObjectStream, h Handler, opts ...ConnOpt) *Conn {
 	c := &Conn{
 		stream:     stream,
 		h:          h,
@@ -55,8 +55,11 @@ func NewConn(ctx context.Context, stream ObjectStream, h Handler, opts ...ConnOp
 		}
 		opt(c)
 	}
-	go c.readMessages(ctx)
 	return c
+}
+
+func (c *Conn) Serve(ctx context.Context) {
+	go c.readMessages(ctx)
 }
 
 // Close closes the JSON-RPC connection. The connection may not be

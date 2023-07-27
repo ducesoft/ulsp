@@ -1,10 +1,9 @@
 package serves
 
 import (
-	"context"
-	"fmt"
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
@@ -13,16 +12,15 @@ import (
 	"github.com/ducesoft/ulsp/token"
 )
 
-func (that *Server) Definition(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.DefinitionParams) ([]lsp.Location, error) {
-	f, ok := that.files[params.TextDocument.URI]
-	if !ok {
-		return nil, fmt.Errorf("document not found: %s", params.TextDocument.URI)
+func (that *Server) Definition(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DefinitionParams) ([]lsp.Location, error) {
+	f, err := ctx.Open(params.TextDocument.URI)
+	if nil != err {
+		return nil, cause.Errors(err)
 	}
-
-	return definition(params.TextDocument.URI, f.Text, params, that.worker.Cache())
+	return definition(params.TextDocument.URI, f.Text, params, ctx.DB())
 }
 
-func (that *Server) TypeDefinition(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.TypeDefinitionParams) ([]lsp.Location, error) {
+func (that *Server) TypeDefinition(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.TypeDefinitionParams) ([]lsp.Location, error) {
 	return that.Definition(ctx, conn, &lsp.DefinitionParams{
 		TextDocumentPositionParams: params.TextDocumentPositionParams,
 		WorkDoneProgressParams:     params.WorkDoneProgressParams,

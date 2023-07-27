@@ -11,87 +11,86 @@ package lsp
 // LSP metaData.version = 3.17.0.
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 )
 
 type Server interface {
-	Progress(ctx context.Context, conn *jsonrpc2.Conn, params *ProgressParams) error                                                       // $/progress
-	SetTrace(ctx context.Context, conn *jsonrpc2.Conn, params *SetTraceParams) error                                                       // $/setTrace
-	IncomingCalls(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) // callHierarchy/incomingCalls
-	OutgoingCalls(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) // callHierarchy/outgoingCalls
-	ResolveCodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *CodeAction) (*CodeAction, error)                                   // codeAction/resolve
-	ResolveCodeLens(ctx context.Context, conn *jsonrpc2.Conn, params *CodeLens) (*CodeLens, error)                                         // codeLens/resolve
-	ResolveCompletionItem(ctx context.Context, conn *jsonrpc2.Conn, params *CompletionItem) (*CompletionItem, error)                       // completionItem/resolve
-	ResolveDocumentLink(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentLink) (*DocumentLink, error)                             // documentLink/resolve
-	Exit(ctx context.Context, conn *jsonrpc2.Conn) error                                                                                   // exit
-	Initialize(ctx context.Context, conn *jsonrpc2.Conn, params *ParamInitialize) (*InitializeResult, error)                               // initialize
-	Initialized(ctx context.Context, conn *jsonrpc2.Conn, params *InitializedParams) error                                                 // initialized
-	Resolve(ctx context.Context, conn *jsonrpc2.Conn, params *InlayHint) (*InlayHint, error)                                               // inlayHint/resolve
-	DidChangeNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeNotebookDocumentParams) error                     // notebookDocument/didChange
-	DidCloseNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidCloseNotebookDocumentParams) error                       // notebookDocument/didClose
-	DidOpenNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidOpenNotebookDocumentParams) error                         // notebookDocument/didOpen
-	DidSaveNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidSaveNotebookDocumentParams) error                         // notebookDocument/didSave
-	Shutdown(ctx context.Context, conn *jsonrpc2.Conn) error                                                                               // shutdown
-	CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *CodeActionParams) ([]CodeAction, error)                                   // textDocument/codeAction
-	CodeLens(ctx context.Context, conn *jsonrpc2.Conn, params *CodeLensParams) ([]CodeLens, error)                                         // textDocument/codeLens
-	ColorPresentation(ctx context.Context, conn *jsonrpc2.Conn, params *ColorPresentationParams) ([]ColorPresentation, error)              // textDocument/colorPresentation
-	Completion(ctx context.Context, conn *jsonrpc2.Conn, params *CompletionParams) (*CompletionList, error)                                // textDocument/completion
-	Declaration(ctx context.Context, conn *jsonrpc2.Conn, params *DeclarationParams) (*Or_textDocument_declaration, error)                 // textDocument/declaration
-	Definition(ctx context.Context, conn *jsonrpc2.Conn, params *DefinitionParams) ([]Location, error)                                     // textDocument/definition
-	Diagnostic(ctx context.Context, conn *jsonrpc2.Conn, params *string) (*string, error)                                                  // textDocument/diagnostic
-	DidChange(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeTextDocumentParams) error                                         // textDocument/didChange
-	DidClose(ctx context.Context, conn *jsonrpc2.Conn, params *DidCloseTextDocumentParams) error                                           // textDocument/didClose
-	DidOpen(ctx context.Context, conn *jsonrpc2.Conn, params *DidOpenTextDocumentParams) error                                             // textDocument/didOpen
-	DidSave(ctx context.Context, conn *jsonrpc2.Conn, params *DidSaveTextDocumentParams) error                                             // textDocument/didSave
-	DocumentColor(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentColorParams) ([]ColorInformation, error)                       // textDocument/documentColor
-	DocumentHighlight(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentHighlightParams) ([]DocumentHighlight, error)              // textDocument/documentHighlight
-	DocumentLink(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentLinkParams) ([]DocumentLink, error)                             // textDocument/documentLink
-	DocumentSymbol(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentSymbolParams) ([]interface{}, error)                          // textDocument/documentSymbol
-	FoldingRange(ctx context.Context, conn *jsonrpc2.Conn, params *FoldingRangeParams) ([]FoldingRange, error)                             // textDocument/foldingRange
-	Formatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentFormattingParams) ([]TextEdit, error)                             // textDocument/formatting
-	Hover(ctx context.Context, conn *jsonrpc2.Conn, params *HoverParams) (*Hover, error)                                                   // textDocument/hover
-	Implementation(ctx context.Context, conn *jsonrpc2.Conn, params *ImplementationParams) ([]Location, error)                             // textDocument/implementation
-	InlayHint(ctx context.Context, conn *jsonrpc2.Conn, params *InlayHintParams) ([]InlayHint, error)                                      // textDocument/inlayHint
-	InlineValue(ctx context.Context, conn *jsonrpc2.Conn, params *InlineValueParams) ([]InlineValue, error)                                // textDocument/inlineValue
-	LinkedEditingRange(ctx context.Context, conn *jsonrpc2.Conn, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error)           // textDocument/linkedEditingRange
-	Moniker(ctx context.Context, conn *jsonrpc2.Conn, params *MonikerParams) ([]Moniker, error)                                            // textDocument/moniker
-	OnTypeFormatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentOnTypeFormattingParams) ([]TextEdit, error)                 // textDocument/onTypeFormatting
-	PrepareCallHierarchy(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error)        // textDocument/prepareCallHierarchy
-	PrepareRename(ctx context.Context, conn *jsonrpc2.Conn, params *PrepareRenameParams) (*PrepareRename2Gn, error)                        // textDocument/prepareRename
-	PrepareTypeHierarchy(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error)        // textDocument/prepareTypeHierarchy
-	RangeFormatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentRangeFormattingParams) ([]TextEdit, error)                   // textDocument/rangeFormatting
-	References(ctx context.Context, conn *jsonrpc2.Conn, params *ReferenceParams) ([]Location, error)                                      // textDocument/references
-	Rename(ctx context.Context, conn *jsonrpc2.Conn, params *RenameParams) (*WorkspaceEdit, error)                                         // textDocument/rename
-	SelectionRange(ctx context.Context, conn *jsonrpc2.Conn, params *SelectionRangeParams) ([]SelectionRange, error)                       // textDocument/selectionRange
-	SemanticTokensFull(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensParams) (*SemanticTokens, error)                    // textDocument/semanticTokens/full
-	SemanticTokensFullDelta(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensDeltaParams) (interface{}, error)              // textDocument/semanticTokens/full/delta
-	SemanticTokensRange(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensRangeParams) (*SemanticTokens, error)              // textDocument/semanticTokens/range
-	SignatureHelp(ctx context.Context, conn *jsonrpc2.Conn, params *SignatureHelpParams) (*SignatureHelp, error)                           // textDocument/signatureHelp
-	TypeDefinition(ctx context.Context, conn *jsonrpc2.Conn, params *TypeDefinitionParams) ([]Location, error)                             // textDocument/typeDefinition
-	WillSave(ctx context.Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) error                                           // textDocument/willSave
-	WillSaveWaitUntil(ctx context.Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) ([]TextEdit, error)                    // textDocument/willSaveWaitUntil
-	Subtypes(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error)                   // typeHierarchy/subtypes
-	Supertypes(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error)               // typeHierarchy/supertypes
-	WorkDoneProgressCancel(ctx context.Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCancelParams) error                           // window/workDoneProgress/cancel
-	DiagnosticWorkspace(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error)   // workspace/diagnostic
-	DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeConfigurationParams) error                           // workspace/didChangeConfiguration
-	DidChangeWatchedFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeWatchedFilesParams) error                             // workspace/didChangeWatchedFiles
-	DidChangeWorkspaceFolders(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeWorkspaceFoldersParams) error                     // workspace/didChangeWorkspaceFolders
-	DidCreateFiles(ctx context.Context, conn *jsonrpc2.Conn, params *CreateFilesParams) error                                              // workspace/didCreateFiles
-	DidDeleteFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) error                                              // workspace/didDeleteFiles
-	DidRenameFiles(ctx context.Context, conn *jsonrpc2.Conn, params *RenameFilesParams) error                                              // workspace/didRenameFiles
-	ExecuteCommand(ctx context.Context, conn *jsonrpc2.Conn, params *ExecuteCommandParams) (interface{}, error)                            // workspace/executeCommand
-	Symbol(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceSymbolParams) ([]SymbolInformation, error)                           // workspace/symbol
-	WillCreateFiles(ctx context.Context, conn *jsonrpc2.Conn, params *CreateFilesParams) (*WorkspaceEdit, error)                           // workspace/willCreateFiles
-	WillDeleteFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) (*WorkspaceEdit, error)                           // workspace/willDeleteFiles
-	WillRenameFiles(ctx context.Context, conn *jsonrpc2.Conn, params *RenameFilesParams) (*WorkspaceEdit, error)                           // workspace/willRenameFiles
-	ResolveWorkspaceSymbol(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceSymbol) (*WorkspaceSymbol, error)                    // workspaceSymbol/resolve
-	NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error)
+	Progress(ctx Context, conn *jsonrpc2.Conn, params *ProgressParams) error                                                       // $/progress
+	SetTrace(ctx Context, conn *jsonrpc2.Conn, params *SetTraceParams) error                                                       // $/setTrace
+	IncomingCalls(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) // callHierarchy/incomingCalls
+	OutgoingCalls(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) // callHierarchy/outgoingCalls
+	ResolveCodeAction(ctx Context, conn *jsonrpc2.Conn, params *CodeAction) (*CodeAction, error)                                   // codeAction/resolve
+	ResolveCodeLens(ctx Context, conn *jsonrpc2.Conn, params *CodeLens) (*CodeLens, error)                                         // codeLens/resolve
+	ResolveCompletionItem(ctx Context, conn *jsonrpc2.Conn, params *CompletionItem) (*CompletionItem, error)                       // completionItem/resolve
+	ResolveDocumentLink(ctx Context, conn *jsonrpc2.Conn, params *DocumentLink) (*DocumentLink, error)                             // documentLink/resolve
+	Exit(ctx Context, conn *jsonrpc2.Conn) error                                                                                   // exit
+	Initialize(ctx Context, conn *jsonrpc2.Conn, params *ParamInitialize) (*InitializeResult, error)                               // initialize
+	Initialized(ctx Context, conn *jsonrpc2.Conn, params *InitializedParams) error                                                 // initialized
+	Resolve(ctx Context, conn *jsonrpc2.Conn, params *InlayHint) (*InlayHint, error)                                               // inlayHint/resolve
+	DidChangeNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidChangeNotebookDocumentParams) error                     // notebookDocument/didChange
+	DidCloseNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidCloseNotebookDocumentParams) error                       // notebookDocument/didClose
+	DidOpenNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidOpenNotebookDocumentParams) error                         // notebookDocument/didOpen
+	DidSaveNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidSaveNotebookDocumentParams) error                         // notebookDocument/didSave
+	Shutdown(ctx Context, conn *jsonrpc2.Conn) error                                                                               // shutdown
+	CodeAction(ctx Context, conn *jsonrpc2.Conn, params *CodeActionParams) ([]CodeAction, error)                                   // textDocument/codeAction
+	CodeLens(ctx Context, conn *jsonrpc2.Conn, params *CodeLensParams) ([]CodeLens, error)                                         // textDocument/codeLens
+	ColorPresentation(ctx Context, conn *jsonrpc2.Conn, params *ColorPresentationParams) ([]ColorPresentation, error)              // textDocument/colorPresentation
+	Completion(ctx Context, conn *jsonrpc2.Conn, params *CompletionParams) (*CompletionList, error)                                // textDocument/completion
+	Declaration(ctx Context, conn *jsonrpc2.Conn, params *DeclarationParams) (*Or_textDocument_declaration, error)                 // textDocument/declaration
+	Definition(ctx Context, conn *jsonrpc2.Conn, params *DefinitionParams) ([]Location, error)                                     // textDocument/definition
+	Diagnostic(ctx Context, conn *jsonrpc2.Conn, params *string) (*string, error)                                                  // textDocument/diagnostic
+	DidChange(ctx Context, conn *jsonrpc2.Conn, params *DidChangeTextDocumentParams) error                                         // textDocument/didChange
+	DidClose(ctx Context, conn *jsonrpc2.Conn, params *DidCloseTextDocumentParams) error                                           // textDocument/didClose
+	DidOpen(ctx Context, conn *jsonrpc2.Conn, params *DidOpenTextDocumentParams) error                                             // textDocument/didOpen
+	DidSave(ctx Context, conn *jsonrpc2.Conn, params *DidSaveTextDocumentParams) error                                             // textDocument/didSave
+	DocumentColor(ctx Context, conn *jsonrpc2.Conn, params *DocumentColorParams) ([]ColorInformation, error)                       // textDocument/documentColor
+	DocumentHighlight(ctx Context, conn *jsonrpc2.Conn, params *DocumentHighlightParams) ([]DocumentHighlight, error)              // textDocument/documentHighlight
+	DocumentLink(ctx Context, conn *jsonrpc2.Conn, params *DocumentLinkParams) ([]DocumentLink, error)                             // textDocument/documentLink
+	DocumentSymbol(ctx Context, conn *jsonrpc2.Conn, params *DocumentSymbolParams) ([]interface{}, error)                          // textDocument/documentSymbol
+	FoldingRange(ctx Context, conn *jsonrpc2.Conn, params *FoldingRangeParams) ([]FoldingRange, error)                             // textDocument/foldingRange
+	Formatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentFormattingParams) ([]TextEdit, error)                             // textDocument/formatting
+	Hover(ctx Context, conn *jsonrpc2.Conn, params *HoverParams) (*Hover, error)                                                   // textDocument/hover
+	Implementation(ctx Context, conn *jsonrpc2.Conn, params *ImplementationParams) ([]Location, error)                             // textDocument/implementation
+	InlayHint(ctx Context, conn *jsonrpc2.Conn, params *InlayHintParams) ([]InlayHint, error)                                      // textDocument/inlayHint
+	InlineValue(ctx Context, conn *jsonrpc2.Conn, params *InlineValueParams) ([]InlineValue, error)                                // textDocument/inlineValue
+	LinkedEditingRange(ctx Context, conn *jsonrpc2.Conn, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error)           // textDocument/linkedEditingRange
+	Moniker(ctx Context, conn *jsonrpc2.Conn, params *MonikerParams) ([]Moniker, error)                                            // textDocument/moniker
+	OnTypeFormatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentOnTypeFormattingParams) ([]TextEdit, error)                 // textDocument/onTypeFormatting
+	PrepareCallHierarchy(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error)        // textDocument/prepareCallHierarchy
+	PrepareRename(ctx Context, conn *jsonrpc2.Conn, params *PrepareRenameParams) (*PrepareRename2Gn, error)                        // textDocument/prepareRename
+	PrepareTypeHierarchy(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error)        // textDocument/prepareTypeHierarchy
+	RangeFormatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentRangeFormattingParams) ([]TextEdit, error)                   // textDocument/rangeFormatting
+	References(ctx Context, conn *jsonrpc2.Conn, params *ReferenceParams) ([]Location, error)                                      // textDocument/references
+	Rename(ctx Context, conn *jsonrpc2.Conn, params *RenameParams) (*WorkspaceEdit, error)                                         // textDocument/rename
+	SelectionRange(ctx Context, conn *jsonrpc2.Conn, params *SelectionRangeParams) ([]SelectionRange, error)                       // textDocument/selectionRange
+	SemanticTokensFull(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensParams) (*SemanticTokens, error)                    // textDocument/semanticTokens/full
+	SemanticTokensFullDelta(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensDeltaParams) (interface{}, error)              // textDocument/semanticTokens/full/delta
+	SemanticTokensRange(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensRangeParams) (*SemanticTokens, error)              // textDocument/semanticTokens/range
+	SignatureHelp(ctx Context, conn *jsonrpc2.Conn, params *SignatureHelpParams) (*SignatureHelp, error)                           // textDocument/signatureHelp
+	TypeDefinition(ctx Context, conn *jsonrpc2.Conn, params *TypeDefinitionParams) ([]Location, error)                             // textDocument/typeDefinition
+	WillSave(ctx Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) error                                           // textDocument/willSave
+	WillSaveWaitUntil(ctx Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) ([]TextEdit, error)                    // textDocument/willSaveWaitUntil
+	Subtypes(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error)                   // typeHierarchy/subtypes
+	Supertypes(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error)               // typeHierarchy/supertypes
+	WorkDoneProgressCancel(ctx Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCancelParams) error                           // window/workDoneProgress/cancel
+	DiagnosticWorkspace(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error)   // workspace/diagnostic
+	DidChangeConfiguration(ctx Context, conn *jsonrpc2.Conn, params *DidChangeConfigurationParams) error                           // workspace/didChangeConfiguration
+	DidChangeWatchedFiles(ctx Context, conn *jsonrpc2.Conn, params *DidChangeWatchedFilesParams) error                             // workspace/didChangeWatchedFiles
+	DidChangeWorkspaceFolders(ctx Context, conn *jsonrpc2.Conn, params *DidChangeWorkspaceFoldersParams) error                     // workspace/didChangeWorkspaceFolders
+	DidCreateFiles(ctx Context, conn *jsonrpc2.Conn, params *CreateFilesParams) error                                              // workspace/didCreateFiles
+	DidDeleteFiles(ctx Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) error                                              // workspace/didDeleteFiles
+	DidRenameFiles(ctx Context, conn *jsonrpc2.Conn, params *RenameFilesParams) error                                              // workspace/didRenameFiles
+	ExecuteCommand(ctx Context, conn *jsonrpc2.Conn, params *ExecuteCommandParams) (interface{}, error)                            // workspace/executeCommand
+	Symbol(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceSymbolParams) ([]SymbolInformation, error)                           // workspace/symbol
+	WillCreateFiles(ctx Context, conn *jsonrpc2.Conn, params *CreateFilesParams) (*WorkspaceEdit, error)                           // workspace/willCreateFiles
+	WillDeleteFiles(ctx Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) (*WorkspaceEdit, error)                           // workspace/willDeleteFiles
+	WillRenameFiles(ctx Context, conn *jsonrpc2.Conn, params *RenameFilesParams) (*WorkspaceEdit, error)                           // workspace/willRenameFiles
+	ResolveWorkspaceSymbol(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceSymbol) (*WorkspaceSymbol, error)                    // workspaceSymbol/resolve
+	NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error)
 }
 
-func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r Request) (any, error) {
+func serverDispatch(ctx Context, server Server, conn *jsonrpc2.Conn, r Request) (any, error) {
 	switch r.Method() {
 	case "$/progress":
 		var params ProgressParams
@@ -737,420 +736,420 @@ func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r R
 	}
 }
 
-func (s *serverDispatcher) Progress(ctx context.Context, params *ProgressParams) error {
+func (s *serverDispatcher) Progress(ctx Context, params *ProgressParams) error {
 	return s.sender.Notify(ctx, "$/progress", params)
 }
-func (s *serverDispatcher) SetTrace(ctx context.Context, params *SetTraceParams) error {
+func (s *serverDispatcher) SetTrace(ctx Context, params *SetTraceParams) error {
 	return s.sender.Notify(ctx, "$/setTrace", params)
 }
-func (s *serverDispatcher) IncomingCalls(ctx context.Context, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) {
+func (s *serverDispatcher) IncomingCalls(ctx Context, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) {
 	var result []CallHierarchyIncomingCall
 	if err := s.sender.Call(ctx, "callHierarchy/incomingCalls", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) OutgoingCalls(ctx context.Context, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) {
+func (s *serverDispatcher) OutgoingCalls(ctx Context, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) {
 	var result []CallHierarchyOutgoingCall
 	if err := s.sender.Call(ctx, "callHierarchy/outgoingCalls", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ResolveCodeAction(ctx context.Context, params *CodeAction) (*CodeAction, error) {
+func (s *serverDispatcher) ResolveCodeAction(ctx Context, params *CodeAction) (*CodeAction, error) {
 	var result *CodeAction
 	if err := s.sender.Call(ctx, "codeAction/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ResolveCodeLens(ctx context.Context, params *CodeLens) (*CodeLens, error) {
+func (s *serverDispatcher) ResolveCodeLens(ctx Context, params *CodeLens) (*CodeLens, error) {
 	var result *CodeLens
 	if err := s.sender.Call(ctx, "codeLens/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ResolveCompletionItem(ctx context.Context, params *CompletionItem) (*CompletionItem, error) {
+func (s *serverDispatcher) ResolveCompletionItem(ctx Context, params *CompletionItem) (*CompletionItem, error) {
 	var result *CompletionItem
 	if err := s.sender.Call(ctx, "completionItem/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ResolveDocumentLink(ctx context.Context, params *DocumentLink) (*DocumentLink, error) {
+func (s *serverDispatcher) ResolveDocumentLink(ctx Context, params *DocumentLink) (*DocumentLink, error) {
 	var result *DocumentLink
 	if err := s.sender.Call(ctx, "documentLink/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Exit(ctx context.Context) error {
+func (s *serverDispatcher) Exit(ctx Context) error {
 	return s.sender.Notify(ctx, "exit", nil)
 }
-func (s *serverDispatcher) Initialize(ctx context.Context, params *ParamInitialize) (*InitializeResult, error) {
+func (s *serverDispatcher) Initialize(ctx Context, params *ParamInitialize) (*InitializeResult, error) {
 	var result *InitializeResult
 	if err := s.sender.Call(ctx, "initialize", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Initialized(ctx context.Context, params *InitializedParams) error {
+func (s *serverDispatcher) Initialized(ctx Context, params *InitializedParams) error {
 	return s.sender.Notify(ctx, "initialized", params)
 }
-func (s *serverDispatcher) Resolve(ctx context.Context, params *InlayHint) (*InlayHint, error) {
+func (s *serverDispatcher) Resolve(ctx Context, params *InlayHint) (*InlayHint, error) {
 	var result *InlayHint
 	if err := s.sender.Call(ctx, "inlayHint/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DidChangeNotebookDocument(ctx context.Context, params *DidChangeNotebookDocumentParams) error {
+func (s *serverDispatcher) DidChangeNotebookDocument(ctx Context, params *DidChangeNotebookDocumentParams) error {
 	return s.sender.Notify(ctx, "notebookDocument/didChange", params)
 }
-func (s *serverDispatcher) DidCloseNotebookDocument(ctx context.Context, params *DidCloseNotebookDocumentParams) error {
+func (s *serverDispatcher) DidCloseNotebookDocument(ctx Context, params *DidCloseNotebookDocumentParams) error {
 	return s.sender.Notify(ctx, "notebookDocument/didClose", params)
 }
-func (s *serverDispatcher) DidOpenNotebookDocument(ctx context.Context, params *DidOpenNotebookDocumentParams) error {
+func (s *serverDispatcher) DidOpenNotebookDocument(ctx Context, params *DidOpenNotebookDocumentParams) error {
 	return s.sender.Notify(ctx, "notebookDocument/didOpen", params)
 }
-func (s *serverDispatcher) DidSaveNotebookDocument(ctx context.Context, params *DidSaveNotebookDocumentParams) error {
+func (s *serverDispatcher) DidSaveNotebookDocument(ctx Context, params *DidSaveNotebookDocumentParams) error {
 	return s.sender.Notify(ctx, "notebookDocument/didSave", params)
 }
-func (s *serverDispatcher) Shutdown(ctx context.Context) error {
+func (s *serverDispatcher) Shutdown(ctx Context) error {
 	return s.sender.Call(ctx, "shutdown", nil, nil)
 }
-func (s *serverDispatcher) CodeAction(ctx context.Context, params *CodeActionParams) ([]CodeAction, error) {
+func (s *serverDispatcher) CodeAction(ctx Context, params *CodeActionParams) ([]CodeAction, error) {
 	var result []CodeAction
 	if err := s.sender.Call(ctx, "textDocument/codeAction", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) CodeLens(ctx context.Context, params *CodeLensParams) ([]CodeLens, error) {
+func (s *serverDispatcher) CodeLens(ctx Context, params *CodeLensParams) ([]CodeLens, error) {
 	var result []CodeLens
 	if err := s.sender.Call(ctx, "textDocument/codeLens", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ColorPresentation(ctx context.Context, params *ColorPresentationParams) ([]ColorPresentation, error) {
+func (s *serverDispatcher) ColorPresentation(ctx Context, params *ColorPresentationParams) ([]ColorPresentation, error) {
 	var result []ColorPresentation
 	if err := s.sender.Call(ctx, "textDocument/colorPresentation", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Completion(ctx context.Context, params *CompletionParams) (*CompletionList, error) {
+func (s *serverDispatcher) Completion(ctx Context, params *CompletionParams) (*CompletionList, error) {
 	var result *CompletionList
 	if err := s.sender.Call(ctx, "textDocument/completion", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Declaration(ctx context.Context, params *DeclarationParams) (*Or_textDocument_declaration, error) {
+func (s *serverDispatcher) Declaration(ctx Context, params *DeclarationParams) (*Or_textDocument_declaration, error) {
 	var result *Or_textDocument_declaration
 	if err := s.sender.Call(ctx, "textDocument/declaration", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Definition(ctx context.Context, params *DefinitionParams) ([]Location, error) {
+func (s *serverDispatcher) Definition(ctx Context, params *DefinitionParams) ([]Location, error) {
 	var result []Location
 	if err := s.sender.Call(ctx, "textDocument/definition", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Diagnostic(ctx context.Context, params *string) (*string, error) {
+func (s *serverDispatcher) Diagnostic(ctx Context, params *string) (*string, error) {
 	var result *string
 	if err := s.sender.Call(ctx, "textDocument/diagnostic", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DidChange(ctx context.Context, params *DidChangeTextDocumentParams) error {
+func (s *serverDispatcher) DidChange(ctx Context, params *DidChangeTextDocumentParams) error {
 	return s.sender.Notify(ctx, "textDocument/didChange", params)
 }
-func (s *serverDispatcher) DidClose(ctx context.Context, params *DidCloseTextDocumentParams) error {
+func (s *serverDispatcher) DidClose(ctx Context, params *DidCloseTextDocumentParams) error {
 	return s.sender.Notify(ctx, "textDocument/didClose", params)
 }
-func (s *serverDispatcher) DidOpen(ctx context.Context, params *DidOpenTextDocumentParams) error {
+func (s *serverDispatcher) DidOpen(ctx Context, params *DidOpenTextDocumentParams) error {
 	return s.sender.Notify(ctx, "textDocument/didOpen", params)
 }
-func (s *serverDispatcher) DidSave(ctx context.Context, params *DidSaveTextDocumentParams) error {
+func (s *serverDispatcher) DidSave(ctx Context, params *DidSaveTextDocumentParams) error {
 	return s.sender.Notify(ctx, "textDocument/didSave", params)
 }
-func (s *serverDispatcher) DocumentColor(ctx context.Context, params *DocumentColorParams) ([]ColorInformation, error) {
+func (s *serverDispatcher) DocumentColor(ctx Context, params *DocumentColorParams) ([]ColorInformation, error) {
 	var result []ColorInformation
 	if err := s.sender.Call(ctx, "textDocument/documentColor", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DocumentHighlight(ctx context.Context, params *DocumentHighlightParams) ([]DocumentHighlight, error) {
+func (s *serverDispatcher) DocumentHighlight(ctx Context, params *DocumentHighlightParams) ([]DocumentHighlight, error) {
 	var result []DocumentHighlight
 	if err := s.sender.Call(ctx, "textDocument/documentHighlight", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DocumentLink(ctx context.Context, params *DocumentLinkParams) ([]DocumentLink, error) {
+func (s *serverDispatcher) DocumentLink(ctx Context, params *DocumentLinkParams) ([]DocumentLink, error) {
 	var result []DocumentLink
 	if err := s.sender.Call(ctx, "textDocument/documentLink", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DocumentSymbol(ctx context.Context, params *DocumentSymbolParams) ([]interface{}, error) {
+func (s *serverDispatcher) DocumentSymbol(ctx Context, params *DocumentSymbolParams) ([]interface{}, error) {
 	var result []interface{}
 	if err := s.sender.Call(ctx, "textDocument/documentSymbol", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) FoldingRange(ctx context.Context, params *FoldingRangeParams) ([]FoldingRange, error) {
+func (s *serverDispatcher) FoldingRange(ctx Context, params *FoldingRangeParams) ([]FoldingRange, error) {
 	var result []FoldingRange
 	if err := s.sender.Call(ctx, "textDocument/foldingRange", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Formatting(ctx context.Context, params *DocumentFormattingParams) ([]TextEdit, error) {
+func (s *serverDispatcher) Formatting(ctx Context, params *DocumentFormattingParams) ([]TextEdit, error) {
 	var result []TextEdit
 	if err := s.sender.Call(ctx, "textDocument/formatting", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Hover(ctx context.Context, params *HoverParams) (*Hover, error) {
+func (s *serverDispatcher) Hover(ctx Context, params *HoverParams) (*Hover, error) {
 	var result *Hover
 	if err := s.sender.Call(ctx, "textDocument/hover", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Implementation(ctx context.Context, params *ImplementationParams) ([]Location, error) {
+func (s *serverDispatcher) Implementation(ctx Context, params *ImplementationParams) ([]Location, error) {
 	var result []Location
 	if err := s.sender.Call(ctx, "textDocument/implementation", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) InlayHint(ctx context.Context, params *InlayHintParams) ([]InlayHint, error) {
+func (s *serverDispatcher) InlayHint(ctx Context, params *InlayHintParams) ([]InlayHint, error) {
 	var result []InlayHint
 	if err := s.sender.Call(ctx, "textDocument/inlayHint", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) InlineValue(ctx context.Context, params *InlineValueParams) ([]InlineValue, error) {
+func (s *serverDispatcher) InlineValue(ctx Context, params *InlineValueParams) ([]InlineValue, error) {
 	var result []InlineValue
 	if err := s.sender.Call(ctx, "textDocument/inlineValue", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) LinkedEditingRange(ctx context.Context, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error) {
+func (s *serverDispatcher) LinkedEditingRange(ctx Context, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error) {
 	var result *LinkedEditingRanges
 	if err := s.sender.Call(ctx, "textDocument/linkedEditingRange", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Moniker(ctx context.Context, params *MonikerParams) ([]Moniker, error) {
+func (s *serverDispatcher) Moniker(ctx Context, params *MonikerParams) ([]Moniker, error) {
 	var result []Moniker
 	if err := s.sender.Call(ctx, "textDocument/moniker", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) OnTypeFormatting(ctx context.Context, params *DocumentOnTypeFormattingParams) ([]TextEdit, error) {
+func (s *serverDispatcher) OnTypeFormatting(ctx Context, params *DocumentOnTypeFormattingParams) ([]TextEdit, error) {
 	var result []TextEdit
 	if err := s.sender.Call(ctx, "textDocument/onTypeFormatting", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) PrepareCallHierarchy(ctx context.Context, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error) {
+func (s *serverDispatcher) PrepareCallHierarchy(ctx Context, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error) {
 	var result []CallHierarchyItem
 	if err := s.sender.Call(ctx, "textDocument/prepareCallHierarchy", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) PrepareRename(ctx context.Context, params *PrepareRenameParams) (*PrepareRename2Gn, error) {
+func (s *serverDispatcher) PrepareRename(ctx Context, params *PrepareRenameParams) (*PrepareRename2Gn, error) {
 	var result *PrepareRename2Gn
 	if err := s.sender.Call(ctx, "textDocument/prepareRename", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) PrepareTypeHierarchy(ctx context.Context, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error) {
+func (s *serverDispatcher) PrepareTypeHierarchy(ctx Context, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error) {
 	var result []TypeHierarchyItem
 	if err := s.sender.Call(ctx, "textDocument/prepareTypeHierarchy", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) RangeFormatting(ctx context.Context, params *DocumentRangeFormattingParams) ([]TextEdit, error) {
+func (s *serverDispatcher) RangeFormatting(ctx Context, params *DocumentRangeFormattingParams) ([]TextEdit, error) {
 	var result []TextEdit
 	if err := s.sender.Call(ctx, "textDocument/rangeFormatting", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) References(ctx context.Context, params *ReferenceParams) ([]Location, error) {
+func (s *serverDispatcher) References(ctx Context, params *ReferenceParams) ([]Location, error) {
 	var result []Location
 	if err := s.sender.Call(ctx, "textDocument/references", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Rename(ctx context.Context, params *RenameParams) (*WorkspaceEdit, error) {
+func (s *serverDispatcher) Rename(ctx Context, params *RenameParams) (*WorkspaceEdit, error) {
 	var result *WorkspaceEdit
 	if err := s.sender.Call(ctx, "textDocument/rename", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) SelectionRange(ctx context.Context, params *SelectionRangeParams) ([]SelectionRange, error) {
+func (s *serverDispatcher) SelectionRange(ctx Context, params *SelectionRangeParams) ([]SelectionRange, error) {
 	var result []SelectionRange
 	if err := s.sender.Call(ctx, "textDocument/selectionRange", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) SemanticTokensFull(ctx context.Context, params *SemanticTokensParams) (*SemanticTokens, error) {
+func (s *serverDispatcher) SemanticTokensFull(ctx Context, params *SemanticTokensParams) (*SemanticTokens, error) {
 	var result *SemanticTokens
 	if err := s.sender.Call(ctx, "textDocument/semanticTokens/full", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) SemanticTokensFullDelta(ctx context.Context, params *SemanticTokensDeltaParams) (interface{}, error) {
+func (s *serverDispatcher) SemanticTokensFullDelta(ctx Context, params *SemanticTokensDeltaParams) (interface{}, error) {
 	var result interface{}
 	if err := s.sender.Call(ctx, "textDocument/semanticTokens/full/delta", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) SemanticTokensRange(ctx context.Context, params *SemanticTokensRangeParams) (*SemanticTokens, error) {
+func (s *serverDispatcher) SemanticTokensRange(ctx Context, params *SemanticTokensRangeParams) (*SemanticTokens, error) {
 	var result *SemanticTokens
 	if err := s.sender.Call(ctx, "textDocument/semanticTokens/range", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) SignatureHelp(ctx context.Context, params *SignatureHelpParams) (*SignatureHelp, error) {
+func (s *serverDispatcher) SignatureHelp(ctx Context, params *SignatureHelpParams) (*SignatureHelp, error) {
 	var result *SignatureHelp
 	if err := s.sender.Call(ctx, "textDocument/signatureHelp", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) TypeDefinition(ctx context.Context, params *TypeDefinitionParams) ([]Location, error) {
+func (s *serverDispatcher) TypeDefinition(ctx Context, params *TypeDefinitionParams) ([]Location, error) {
 	var result []Location
 	if err := s.sender.Call(ctx, "textDocument/typeDefinition", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) WillSave(ctx context.Context, params *WillSaveTextDocumentParams) error {
+func (s *serverDispatcher) WillSave(ctx Context, params *WillSaveTextDocumentParams) error {
 	return s.sender.Notify(ctx, "textDocument/willSave", params)
 }
-func (s *serverDispatcher) WillSaveWaitUntil(ctx context.Context, params *WillSaveTextDocumentParams) ([]TextEdit, error) {
+func (s *serverDispatcher) WillSaveWaitUntil(ctx Context, params *WillSaveTextDocumentParams) ([]TextEdit, error) {
 	var result []TextEdit
 	if err := s.sender.Call(ctx, "textDocument/willSaveWaitUntil", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Subtypes(ctx context.Context, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error) {
+func (s *serverDispatcher) Subtypes(ctx Context, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error) {
 	var result []TypeHierarchyItem
 	if err := s.sender.Call(ctx, "typeHierarchy/subtypes", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Supertypes(ctx context.Context, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error) {
+func (s *serverDispatcher) Supertypes(ctx Context, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error) {
 	var result []TypeHierarchyItem
 	if err := s.sender.Call(ctx, "typeHierarchy/supertypes", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) WorkDoneProgressCancel(ctx context.Context, params *WorkDoneProgressCancelParams) error {
+func (s *serverDispatcher) WorkDoneProgressCancel(ctx Context, params *WorkDoneProgressCancelParams) error {
 	return s.sender.Notify(ctx, "window/workDoneProgress/cancel", params)
 }
-func (s *serverDispatcher) DiagnosticWorkspace(ctx context.Context, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error) {
+func (s *serverDispatcher) DiagnosticWorkspace(ctx Context, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error) {
 	var result *WorkspaceDiagnosticReport
 	if err := s.sender.Call(ctx, "workspace/diagnostic", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) DidChangeConfiguration(ctx context.Context, params *DidChangeConfigurationParams) error {
+func (s *serverDispatcher) DidChangeConfiguration(ctx Context, params *DidChangeConfigurationParams) error {
 	return s.sender.Notify(ctx, "workspace/didChangeConfiguration", params)
 }
-func (s *serverDispatcher) DidChangeWatchedFiles(ctx context.Context, params *DidChangeWatchedFilesParams) error {
+func (s *serverDispatcher) DidChangeWatchedFiles(ctx Context, params *DidChangeWatchedFilesParams) error {
 	return s.sender.Notify(ctx, "workspace/didChangeWatchedFiles", params)
 }
-func (s *serverDispatcher) DidChangeWorkspaceFolders(ctx context.Context, params *DidChangeWorkspaceFoldersParams) error {
+func (s *serverDispatcher) DidChangeWorkspaceFolders(ctx Context, params *DidChangeWorkspaceFoldersParams) error {
 	return s.sender.Notify(ctx, "workspace/didChangeWorkspaceFolders", params)
 }
-func (s *serverDispatcher) DidCreateFiles(ctx context.Context, params *CreateFilesParams) error {
+func (s *serverDispatcher) DidCreateFiles(ctx Context, params *CreateFilesParams) error {
 	return s.sender.Notify(ctx, "workspace/didCreateFiles", params)
 }
-func (s *serverDispatcher) DidDeleteFiles(ctx context.Context, params *DeleteFilesParams) error {
+func (s *serverDispatcher) DidDeleteFiles(ctx Context, params *DeleteFilesParams) error {
 	return s.sender.Notify(ctx, "workspace/didDeleteFiles", params)
 }
-func (s *serverDispatcher) DidRenameFiles(ctx context.Context, params *RenameFilesParams) error {
+func (s *serverDispatcher) DidRenameFiles(ctx Context, params *RenameFilesParams) error {
 	return s.sender.Notify(ctx, "workspace/didRenameFiles", params)
 }
-func (s *serverDispatcher) ExecuteCommand(ctx context.Context, params *ExecuteCommandParams) (interface{}, error) {
+func (s *serverDispatcher) ExecuteCommand(ctx Context, params *ExecuteCommandParams) (interface{}, error) {
 	var result interface{}
 	if err := s.sender.Call(ctx, "workspace/executeCommand", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) Symbol(ctx context.Context, params *WorkspaceSymbolParams) ([]SymbolInformation, error) {
+func (s *serverDispatcher) Symbol(ctx Context, params *WorkspaceSymbolParams) ([]SymbolInformation, error) {
 	var result []SymbolInformation
 	if err := s.sender.Call(ctx, "workspace/symbol", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) WillCreateFiles(ctx context.Context, params *CreateFilesParams) (*WorkspaceEdit, error) {
+func (s *serverDispatcher) WillCreateFiles(ctx Context, params *CreateFilesParams) (*WorkspaceEdit, error) {
 	var result *WorkspaceEdit
 	if err := s.sender.Call(ctx, "workspace/willCreateFiles", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) WillDeleteFiles(ctx context.Context, params *DeleteFilesParams) (*WorkspaceEdit, error) {
+func (s *serverDispatcher) WillDeleteFiles(ctx Context, params *DeleteFilesParams) (*WorkspaceEdit, error) {
 	var result *WorkspaceEdit
 	if err := s.sender.Call(ctx, "workspace/willDeleteFiles", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) WillRenameFiles(ctx context.Context, params *RenameFilesParams) (*WorkspaceEdit, error) {
+func (s *serverDispatcher) WillRenameFiles(ctx Context, params *RenameFilesParams) (*WorkspaceEdit, error) {
 	var result *WorkspaceEdit
 	if err := s.sender.Call(ctx, "workspace/willRenameFiles", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) ResolveWorkspaceSymbol(ctx context.Context, params *WorkspaceSymbol) (*WorkspaceSymbol, error) {
+func (s *serverDispatcher) ResolveWorkspaceSymbol(ctx Context, params *WorkspaceSymbol) (*WorkspaceSymbol, error) {
 	var result *WorkspaceSymbol
 	if err := s.sender.Call(ctx, "workspaceSymbol/resolve", params, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (s *serverDispatcher) NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error) {
+func (s *serverDispatcher) NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error) {
 	var result interface{}
 	if err := s.sender.Call(ctx, method, params, &result); err != nil {
 		return nil, err
@@ -1161,290 +1160,290 @@ func (s *serverDispatcher) NonstandardRequest(ctx context.Context, method string
 type AbsServer struct {
 }
 
-func (that *AbsServer) Progress(ctx context.Context, conn *jsonrpc2.Conn, params *ProgressParams) error {
+func (that *AbsServer) Progress(ctx Context, conn *jsonrpc2.Conn, params *ProgressParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) SetTrace(ctx context.Context, conn *jsonrpc2.Conn, params *SetTraceParams) error {
+func (that *AbsServer) SetTrace(ctx Context, conn *jsonrpc2.Conn, params *SetTraceParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) IncomingCalls(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) {
+func (that *AbsServer) IncomingCalls(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyIncomingCallsParams) ([]CallHierarchyIncomingCall, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) OutgoingCalls(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) {
+func (that *AbsServer) OutgoingCalls(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyOutgoingCallsParams) ([]CallHierarchyOutgoingCall, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ResolveCodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *CodeAction) (*CodeAction, error) {
+func (that *AbsServer) ResolveCodeAction(ctx Context, conn *jsonrpc2.Conn, params *CodeAction) (*CodeAction, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ResolveCodeLens(ctx context.Context, conn *jsonrpc2.Conn, params *CodeLens) (*CodeLens, error) {
+func (that *AbsServer) ResolveCodeLens(ctx Context, conn *jsonrpc2.Conn, params *CodeLens) (*CodeLens, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ResolveCompletionItem(ctx context.Context, conn *jsonrpc2.Conn, params *CompletionItem) (*CompletionItem, error) {
+func (that *AbsServer) ResolveCompletionItem(ctx Context, conn *jsonrpc2.Conn, params *CompletionItem) (*CompletionItem, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ResolveDocumentLink(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentLink) (*DocumentLink, error) {
+func (that *AbsServer) ResolveDocumentLink(ctx Context, conn *jsonrpc2.Conn, params *DocumentLink) (*DocumentLink, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Exit(ctx context.Context, conn *jsonrpc2.Conn) error {
+func (that *AbsServer) Exit(ctx Context, conn *jsonrpc2.Conn) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) Initialize(ctx context.Context, conn *jsonrpc2.Conn, params *ParamInitialize) (*InitializeResult, error) {
+func (that *AbsServer) Initialize(ctx Context, conn *jsonrpc2.Conn, params *ParamInitialize) (*InitializeResult, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Initialized(ctx context.Context, conn *jsonrpc2.Conn, params *InitializedParams) error {
+func (that *AbsServer) Initialized(ctx Context, conn *jsonrpc2.Conn, params *InitializedParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) Resolve(ctx context.Context, conn *jsonrpc2.Conn, params *InlayHint) (*InlayHint, error) {
+func (that *AbsServer) Resolve(ctx Context, conn *jsonrpc2.Conn, params *InlayHint) (*InlayHint, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DidChangeNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeNotebookDocumentParams) error {
+func (that *AbsServer) DidChangeNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidChangeNotebookDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidCloseNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidCloseNotebookDocumentParams) error {
+func (that *AbsServer) DidCloseNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidCloseNotebookDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidOpenNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidOpenNotebookDocumentParams) error {
+func (that *AbsServer) DidOpenNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidOpenNotebookDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidSaveNotebookDocument(ctx context.Context, conn *jsonrpc2.Conn, params *DidSaveNotebookDocumentParams) error {
+func (that *AbsServer) DidSaveNotebookDocument(ctx Context, conn *jsonrpc2.Conn, params *DidSaveNotebookDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) Shutdown(ctx context.Context, conn *jsonrpc2.Conn) error {
+func (that *AbsServer) Shutdown(ctx Context, conn *jsonrpc2.Conn) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) CodeAction(ctx context.Context, conn *jsonrpc2.Conn, params *CodeActionParams) ([]CodeAction, error) {
+func (that *AbsServer) CodeAction(ctx Context, conn *jsonrpc2.Conn, params *CodeActionParams) ([]CodeAction, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) CodeLens(ctx context.Context, conn *jsonrpc2.Conn, params *CodeLensParams) ([]CodeLens, error) {
+func (that *AbsServer) CodeLens(ctx Context, conn *jsonrpc2.Conn, params *CodeLensParams) ([]CodeLens, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ColorPresentation(ctx context.Context, conn *jsonrpc2.Conn, params *ColorPresentationParams) ([]ColorPresentation, error) {
+func (that *AbsServer) ColorPresentation(ctx Context, conn *jsonrpc2.Conn, params *ColorPresentationParams) ([]ColorPresentation, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Completion(ctx context.Context, conn *jsonrpc2.Conn, params *CompletionParams) (*CompletionList, error) {
+func (that *AbsServer) Completion(ctx Context, conn *jsonrpc2.Conn, params *CompletionParams) (*CompletionList, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Declaration(ctx context.Context, conn *jsonrpc2.Conn, params *DeclarationParams) (*Or_textDocument_declaration, error) {
+func (that *AbsServer) Declaration(ctx Context, conn *jsonrpc2.Conn, params *DeclarationParams) (*Or_textDocument_declaration, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Definition(ctx context.Context, conn *jsonrpc2.Conn, params *DefinitionParams) ([]Location, error) {
+func (that *AbsServer) Definition(ctx Context, conn *jsonrpc2.Conn, params *DefinitionParams) ([]Location, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Diagnostic(ctx context.Context, conn *jsonrpc2.Conn, params *string) (*string, error) {
+func (that *AbsServer) Diagnostic(ctx Context, conn *jsonrpc2.Conn, params *string) (*string, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DidChange(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeTextDocumentParams) error {
+func (that *AbsServer) DidChange(ctx Context, conn *jsonrpc2.Conn, params *DidChangeTextDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidClose(ctx context.Context, conn *jsonrpc2.Conn, params *DidCloseTextDocumentParams) error {
+func (that *AbsServer) DidClose(ctx Context, conn *jsonrpc2.Conn, params *DidCloseTextDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidOpen(ctx context.Context, conn *jsonrpc2.Conn, params *DidOpenTextDocumentParams) error {
+func (that *AbsServer) DidOpen(ctx Context, conn *jsonrpc2.Conn, params *DidOpenTextDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidSave(ctx context.Context, conn *jsonrpc2.Conn, params *DidSaveTextDocumentParams) error {
+func (that *AbsServer) DidSave(ctx Context, conn *jsonrpc2.Conn, params *DidSaveTextDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DocumentColor(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentColorParams) ([]ColorInformation, error) {
+func (that *AbsServer) DocumentColor(ctx Context, conn *jsonrpc2.Conn, params *DocumentColorParams) ([]ColorInformation, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DocumentHighlight(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentHighlightParams) ([]DocumentHighlight, error) {
+func (that *AbsServer) DocumentHighlight(ctx Context, conn *jsonrpc2.Conn, params *DocumentHighlightParams) ([]DocumentHighlight, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DocumentLink(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentLinkParams) ([]DocumentLink, error) {
+func (that *AbsServer) DocumentLink(ctx Context, conn *jsonrpc2.Conn, params *DocumentLinkParams) ([]DocumentLink, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DocumentSymbol(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentSymbolParams) ([]interface{}, error) {
+func (that *AbsServer) DocumentSymbol(ctx Context, conn *jsonrpc2.Conn, params *DocumentSymbolParams) ([]interface{}, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) FoldingRange(ctx context.Context, conn *jsonrpc2.Conn, params *FoldingRangeParams) ([]FoldingRange, error) {
+func (that *AbsServer) FoldingRange(ctx Context, conn *jsonrpc2.Conn, params *FoldingRangeParams) ([]FoldingRange, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Formatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentFormattingParams) ([]TextEdit, error) {
+func (that *AbsServer) Formatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentFormattingParams) ([]TextEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Hover(ctx context.Context, conn *jsonrpc2.Conn, params *HoverParams) (*Hover, error) {
+func (that *AbsServer) Hover(ctx Context, conn *jsonrpc2.Conn, params *HoverParams) (*Hover, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Implementation(ctx context.Context, conn *jsonrpc2.Conn, params *ImplementationParams) ([]Location, error) {
+func (that *AbsServer) Implementation(ctx Context, conn *jsonrpc2.Conn, params *ImplementationParams) ([]Location, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) InlayHint(ctx context.Context, conn *jsonrpc2.Conn, params *InlayHintParams) ([]InlayHint, error) {
+func (that *AbsServer) InlayHint(ctx Context, conn *jsonrpc2.Conn, params *InlayHintParams) ([]InlayHint, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) InlineValue(ctx context.Context, conn *jsonrpc2.Conn, params *InlineValueParams) ([]InlineValue, error) {
+func (that *AbsServer) InlineValue(ctx Context, conn *jsonrpc2.Conn, params *InlineValueParams) ([]InlineValue, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) LinkedEditingRange(ctx context.Context, conn *jsonrpc2.Conn, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error) {
+func (that *AbsServer) LinkedEditingRange(ctx Context, conn *jsonrpc2.Conn, params *LinkedEditingRangeParams) (*LinkedEditingRanges, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Moniker(ctx context.Context, conn *jsonrpc2.Conn, params *MonikerParams) ([]Moniker, error) {
+func (that *AbsServer) Moniker(ctx Context, conn *jsonrpc2.Conn, params *MonikerParams) ([]Moniker, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) OnTypeFormatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentOnTypeFormattingParams) ([]TextEdit, error) {
+func (that *AbsServer) OnTypeFormatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentOnTypeFormattingParams) ([]TextEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) PrepareCallHierarchy(ctx context.Context, conn *jsonrpc2.Conn, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error) {
+func (that *AbsServer) PrepareCallHierarchy(ctx Context, conn *jsonrpc2.Conn, params *CallHierarchyPrepareParams) ([]CallHierarchyItem, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) PrepareRename(ctx context.Context, conn *jsonrpc2.Conn, params *PrepareRenameParams) (*PrepareRename2Gn, error) {
+func (that *AbsServer) PrepareRename(ctx Context, conn *jsonrpc2.Conn, params *PrepareRenameParams) (*PrepareRename2Gn, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) PrepareTypeHierarchy(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error) {
+func (that *AbsServer) PrepareTypeHierarchy(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchyPrepareParams) ([]TypeHierarchyItem, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) RangeFormatting(ctx context.Context, conn *jsonrpc2.Conn, params *DocumentRangeFormattingParams) ([]TextEdit, error) {
+func (that *AbsServer) RangeFormatting(ctx Context, conn *jsonrpc2.Conn, params *DocumentRangeFormattingParams) ([]TextEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) References(ctx context.Context, conn *jsonrpc2.Conn, params *ReferenceParams) ([]Location, error) {
+func (that *AbsServer) References(ctx Context, conn *jsonrpc2.Conn, params *ReferenceParams) ([]Location, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Rename(ctx context.Context, conn *jsonrpc2.Conn, params *RenameParams) (*WorkspaceEdit, error) {
+func (that *AbsServer) Rename(ctx Context, conn *jsonrpc2.Conn, params *RenameParams) (*WorkspaceEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) SelectionRange(ctx context.Context, conn *jsonrpc2.Conn, params *SelectionRangeParams) ([]SelectionRange, error) {
+func (that *AbsServer) SelectionRange(ctx Context, conn *jsonrpc2.Conn, params *SelectionRangeParams) ([]SelectionRange, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) SemanticTokensFull(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensParams) (*SemanticTokens, error) {
+func (that *AbsServer) SemanticTokensFull(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensParams) (*SemanticTokens, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) SemanticTokensFullDelta(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensDeltaParams) (interface{}, error) {
+func (that *AbsServer) SemanticTokensFullDelta(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensDeltaParams) (interface{}, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) SemanticTokensRange(ctx context.Context, conn *jsonrpc2.Conn, params *SemanticTokensRangeParams) (*SemanticTokens, error) {
+func (that *AbsServer) SemanticTokensRange(ctx Context, conn *jsonrpc2.Conn, params *SemanticTokensRangeParams) (*SemanticTokens, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) SignatureHelp(ctx context.Context, conn *jsonrpc2.Conn, params *SignatureHelpParams) (*SignatureHelp, error) {
+func (that *AbsServer) SignatureHelp(ctx Context, conn *jsonrpc2.Conn, params *SignatureHelpParams) (*SignatureHelp, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) TypeDefinition(ctx context.Context, conn *jsonrpc2.Conn, params *TypeDefinitionParams) ([]Location, error) {
+func (that *AbsServer) TypeDefinition(ctx Context, conn *jsonrpc2.Conn, params *TypeDefinitionParams) ([]Location, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) WillSave(ctx context.Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) error {
+func (that *AbsServer) WillSave(ctx Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) WillSaveWaitUntil(ctx context.Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) ([]TextEdit, error) {
+func (that *AbsServer) WillSaveWaitUntil(ctx Context, conn *jsonrpc2.Conn, params *WillSaveTextDocumentParams) ([]TextEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Subtypes(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error) {
+func (that *AbsServer) Subtypes(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchySubtypesParams) ([]TypeHierarchyItem, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Supertypes(ctx context.Context, conn *jsonrpc2.Conn, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error) {
+func (that *AbsServer) Supertypes(ctx Context, conn *jsonrpc2.Conn, params *TypeHierarchySupertypesParams) ([]TypeHierarchyItem, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) WorkDoneProgressCancel(ctx context.Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCancelParams) error {
+func (that *AbsServer) WorkDoneProgressCancel(ctx Context, conn *jsonrpc2.Conn, params *WorkDoneProgressCancelParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DiagnosticWorkspace(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error) {
+func (that *AbsServer) DiagnosticWorkspace(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceDiagnosticParams) (*WorkspaceDiagnosticReport, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) DidChangeConfiguration(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeConfigurationParams) error {
+func (that *AbsServer) DidChangeConfiguration(ctx Context, conn *jsonrpc2.Conn, params *DidChangeConfigurationParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidChangeWatchedFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeWatchedFilesParams) error {
+func (that *AbsServer) DidChangeWatchedFiles(ctx Context, conn *jsonrpc2.Conn, params *DidChangeWatchedFilesParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidChangeWorkspaceFolders(ctx context.Context, conn *jsonrpc2.Conn, params *DidChangeWorkspaceFoldersParams) error {
+func (that *AbsServer) DidChangeWorkspaceFolders(ctx Context, conn *jsonrpc2.Conn, params *DidChangeWorkspaceFoldersParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidCreateFiles(ctx context.Context, conn *jsonrpc2.Conn, params *CreateFilesParams) error {
+func (that *AbsServer) DidCreateFiles(ctx Context, conn *jsonrpc2.Conn, params *CreateFilesParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidDeleteFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) error {
+func (that *AbsServer) DidDeleteFiles(ctx Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) DidRenameFiles(ctx context.Context, conn *jsonrpc2.Conn, params *RenameFilesParams) error {
+func (that *AbsServer) DidRenameFiles(ctx Context, conn *jsonrpc2.Conn, params *RenameFilesParams) error {
 	return ErrMethodNotFound
 }
 
-func (that *AbsServer) ExecuteCommand(ctx context.Context, conn *jsonrpc2.Conn, params *ExecuteCommandParams) (interface{}, error) {
+func (that *AbsServer) ExecuteCommand(ctx Context, conn *jsonrpc2.Conn, params *ExecuteCommandParams) (interface{}, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) Symbol(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceSymbolParams) ([]SymbolInformation, error) {
+func (that *AbsServer) Symbol(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceSymbolParams) ([]SymbolInformation, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) WillCreateFiles(ctx context.Context, conn *jsonrpc2.Conn, params *CreateFilesParams) (*WorkspaceEdit, error) {
+func (that *AbsServer) WillCreateFiles(ctx Context, conn *jsonrpc2.Conn, params *CreateFilesParams) (*WorkspaceEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) WillDeleteFiles(ctx context.Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) (*WorkspaceEdit, error) {
+func (that *AbsServer) WillDeleteFiles(ctx Context, conn *jsonrpc2.Conn, params *DeleteFilesParams) (*WorkspaceEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) WillRenameFiles(ctx context.Context, conn *jsonrpc2.Conn, params *RenameFilesParams) (*WorkspaceEdit, error) {
+func (that *AbsServer) WillRenameFiles(ctx Context, conn *jsonrpc2.Conn, params *RenameFilesParams) (*WorkspaceEdit, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) ResolveWorkspaceSymbol(ctx context.Context, conn *jsonrpc2.Conn, params *WorkspaceSymbol) (*WorkspaceSymbol, error) {
+func (that *AbsServer) ResolveWorkspaceSymbol(ctx Context, conn *jsonrpc2.Conn, params *WorkspaceSymbol) (*WorkspaceSymbol, error) {
 	return nil, ErrMethodNotFound
 }
 
-func (that *AbsServer) NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error) {
+func (that *AbsServer) NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error) {
 	return nil, ErrMethodNotFound
 }

@@ -11,8 +11,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/config"
-	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
 	"github.com/ducesoft/ulsp/lsp"
@@ -23,77 +23,42 @@ import (
 )
 
 var (
-	ErrNoConnection = errors.New("no database connection")
-	grader          = ws.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
+	grader = ws.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 )
 
 type Server struct {
 	*lsp.AbsServer
-	SpecificFileCfg    *config.Config
-	DefaultFileCfg     *config.Config
-	WSCfg              *config.Config
-	dbConn             *database.DBConnection
-	curDBCfg           *config.DBConfig
-	curDBName          string
-	curConnectionIndex int
-
-	// The initOptionDBConfig is an optional param
-	// sent by the client as part of the LSP InitializationOptions
-	// payload. If non-nil, the server will ignore all
-	// other configuration sources (workspace and user).
-	initOptionDBConfig *config.DBConfig
-
-	worker  *database.Worker
-	files   map[lsp.DocumentURI]*File
-	options []jsonrpc2.ConnOpt
+	cfg      *config.Config
+	options  []jsonrpc2.ConnOpt
+	sessions *lsp.Store
 }
 
-func NewServer(conf *config.Config, options ...jsonrpc2.ConnOpt) *Server {
-	worker := database.NewWorker()
-	server := &Server{
-		DefaultFileCfg: conf,
-		files:          make(map[lsp.DocumentURI]*File),
-		worker:         worker,
-		options:        options,
+func NewServer(cfg *config.Config, options ...jsonrpc2.ConnOpt) *Server {
+	return &Server{
+		cfg:      cfg,
+		options:  options,
+		sessions: lsp.NewStore(),
 	}
-	return server
 }
 
 func (that *Server) Start() error {
-	if nil == that.DefaultFileCfg {
+	if nil == that.cfg {
 		cfg, err := config.GetDefaultConfig()
 		if err != nil && !errors.Is(config.ErrNotFoundConfig, err) {
 			return fmt.Errorf("cannot read default config, %w", err)
 		}
-		that.DefaultFileCfg = cfg
+		that.cfg = cfg
 	}
-	that.worker.Start()
 	return nil
 }
 
 func (that *Server) Stop() error {
-	if err := that.dbConn.Close(); err != nil {
-		return err
-	}
-	that.worker.Stop()
-	return nil
+	return that.sessions.Close()
 }
 
-func (that *Server) Refresh(ctx context.Context) error {
-	repo, err := that.Repository(ctx)
-	if nil != err {
-		return err
-	}
-	if err = that.worker.ReCache(ctx, repo); nil != err {
-		return err
-	}
-	return nil
-}
-
-func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	ctx := request.Context()
-	if err := lsp.PanicEfx(ctx, func() error {
-		c, err := grader.Upgrade(writer, request, nil)
+func (that *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if err := lsp.PanicEfx(r.Context(), func() error {
+		c, err := grader.Upgrade(w, r, nil)
 		if nil != err {
 			return err
 		}
@@ -101,30 +66,34 @@ func (that *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 			log.Catch(c.Close())
 		}()
 		wc := jsonrpc2.NewConn(
-			ctx,
 			jsonrpc2.NewObjectStream(c),
 			jsonrpc2.HandlerWithError(that.ServeRPC),
 			that.options...)
+		stx := that.sessions.Open(r.Context(), that.cfg, wc)
+		defer func() { that.sessions.Release(stx) }()
+		wc.Serve(stx)
 		<-wc.DisconnectNotify()
 		return c.WriteControl(ws.CloseMessage, []byte{}, time.Now().Add(time.Second))
 	}); nil != err {
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func (that *Server) ServeSTD(ctx context.Context) {
 	h := jsonrpc2.HandlerWithError(that.ServeRPC)
 	wc := jsonrpc2.NewConn(
-		ctx,
 		jsonrpc2.NewBufferedStream(&stdPip{}, jsonrpc2.VSCodeObjectCodec{}),
 		h,
 		that.options...,
 	)
+	stx := that.sessions.Open(ctx, that.cfg, wc)
+	defer func() { that.sessions.Release(stx) }()
+	wc.Serve(stx)
 	<-wc.DisconnectNotify()
 }
 
 func (that *Server) ServeRPC(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) (any, error) {
-	rs, err := lsp.Handle(ctx, that, conn, r)
+	rs, err := lsp.Handle(lsp.ContextWith(ctx), that, conn, r)
 	if nil == err {
 		log.Info(ctx, "%s,%v,E0000000000", r.Method, r.ID)
 		return rs, err
@@ -132,7 +101,7 @@ func (that *Server) ServeRPC(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrp
 	switch x := err.(type) {
 	case *jsonrpc2.Error:
 		log.Info(ctx, "%s,%v,%v", r.Method, r.ID, x.Code)
-	case *log.Cause:
+	case *cause.Cause:
 		log.Info(ctx, "%s,%v,%v", r.Method, r.ID, x.GetCode())
 	default:
 		log.Info(ctx, "%s,%v,E0000000520", r.Method, r.ID)

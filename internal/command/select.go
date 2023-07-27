@@ -9,11 +9,10 @@ package command
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/ducesoft/ulsp/ast"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/internal/i18n"
 	"github.com/ducesoft/ulsp/jsonrpc2"
@@ -36,7 +35,7 @@ func (that *executor) Name() string {
 	return "code/execute"
 }
 
-func (that *executor) Attr(ctx context.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
+func (that *executor) Attr(ctx lsp.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
 	return &lsp.CodeAction{
 		Title: i18n.Sprintf(ctx, "Execute Query"),
 		Kind:  lsp.Empty,
@@ -48,18 +47,14 @@ func (that *executor) Attr(ctx context.Context, params *lsp.CodeActionParams) *l
 	}
 }
 
-func (that *executor) Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams, ls LS) (any, error) {
-	// parse execute command arguments
-	if nil == ls.Conn() {
-		return nil, errors.New("database connection is not open")
-	}
+func (that *executor) Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (any, error) {
 	if len(params.Arguments) == 0 {
 		return nil, fmt.Errorf("required arguments were not provided: <File URI>")
 	}
 	uri := lsp.DocumentURI(params.Arguments[0])
-	f := ls.Open(uri)
-	if nil == f {
-		return nil, fmt.Errorf("document not found, %q", uri)
+	f, err := ctx.Open(uri)
+	if nil == err {
+		return nil, cause.Errors(err)
 	}
 	showVertical := false
 	if len(params.Arguments) > 1 {
@@ -95,13 +90,13 @@ func (that *executor) Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp
 		}
 
 		if _, isQuery := database.QueryExecType(query, ""); isQuery {
-			res, err := that.query(ctx, query, showVertical, ls)
+			res, err := that.query(ctx, query, showVertical)
 			if err != nil {
 				return nil, err
 			}
 			fmt.Fprintln(buf, res)
 		} else {
-			res, err := that.exec(ctx, query, showVertical, ls)
+			res, err := that.exec(ctx, query, showVertical)
 			if err != nil {
 				return nil, err
 			}
@@ -128,8 +123,8 @@ func getStatements(text string) ([]*ast.Statement, error) {
 	return stmts, nil
 }
 
-func (that *executor) query(ctx context.Context, query string, vertical bool, ls LS) (string, error) {
-	repo, err := ls.Repository(ctx)
+func (that *executor) query(ctx lsp.Context, query string, vertical bool) (string, error) {
+	repo, err := ctx.Repository()
 	if err != nil {
 		return "", err
 	}
@@ -168,8 +163,8 @@ func (that *executor) query(ctx context.Context, query string, vertical bool, ls
 	return buf.String(), nil
 }
 
-func (that *executor) exec(ctx context.Context, query string, vertical bool, ls LS) (string, error) {
-	repo, err := ls.Repository(ctx)
+func (that *executor) exec(ctx lsp.Context, query string, vertical bool) (string, error) {
+	repo, err := ctx.Repository()
 	if err != nil {
 		return "", err
 	}

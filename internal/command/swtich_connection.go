@@ -8,9 +8,7 @@
 package command
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/ducesoft/ulsp/internal/i18n"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
@@ -27,7 +25,7 @@ func (that *switchConnection) Name() string {
 	return "code/switchConnection"
 }
 
-func (that *switchConnection) Attr(ctx context.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
+func (that *switchConnection) Attr(ctx lsp.Context, params *lsp.CodeActionParams) *lsp.CodeAction {
 	return &lsp.CodeAction{
 		Title: i18n.Sprintf(ctx, "Switch Connection"),
 		Kind:  lsp.Empty,
@@ -39,20 +37,6 @@ func (that *switchConnection) Attr(ctx context.Context, params *lsp.CodeActionPa
 	}
 }
 
-func (that *switchConnection) Exec(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams, ls LS) (any, error) {
-	if len(params.Arguments) != 1 {
-		return nil, fmt.Errorf("required arguments were not provided: <Connection Index>")
-	}
-	indexStr := string(params.Arguments[0])
-	// Reconnect database
-	if err := ls.Exchange(Connection, indexStr); nil != err {
-		return nil, err
-	}
-
-	// close and reconnection to database
-	if err := ls.Reconnection(ctx); err != nil {
-		return nil, err
-	}
-
+func (that *switchConnection) Exec(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ExecuteCommandParams) (any, error) {
 	return nil, nil
 }

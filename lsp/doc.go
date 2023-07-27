@@ -18,6 +18,7 @@ package lsp
 import (
 	"context"
 	"encoding/json"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/log"
 	"io"
@@ -67,7 +68,7 @@ type serverDispatcher struct {
 	sender connSender
 }
 
-func Handle(ctx context.Context, server Server, conn *jsonrpc2.Conn, r *jsonrpc2.Request) (an any, err error) {
+func Handle(ctx Context, server Server, conn *jsonrpc2.Conn, r *jsonrpc2.Request) (an any, err error) {
 	return PanicEf(ctx, func() (any, error) {
 		log.Warn(ctx, "%s,%v", r.Method, r.ID)
 		if ctx.Err() != nil {
@@ -81,7 +82,7 @@ func PanicEf[T any](ctx context.Context, fn func() (T, error)) (r T, err error) 
 	defer func() {
 		if c := recover(); nil != c {
 			log.Error(ctx, string(debug.Stack()))
-			err = log.Errorf("%v", c)
+			err = cause.Errorf("%v", c)
 		}
 	}()
 	return fn()

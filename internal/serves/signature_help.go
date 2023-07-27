@@ -1,8 +1,8 @@
 package serves
 
 import (
-	"context"
 	"fmt"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
 	"github.com/ducesoft/ulsp/parser"
@@ -10,14 +10,10 @@ import (
 	"github.com/ducesoft/ulsp/token"
 )
 
-func (that *Server) SignatureHelp(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.SignatureHelpParams) (*lsp.SignatureHelp, error) {
-	f, ok := that.files[params.TextDocument.URI]
-	if !ok {
-		return nil, fmt.Errorf("document not found: %s", params.TextDocument.URI)
-	}
-	dbCache := that.worker.Cache()
-	if dbCache == nil {
-		return nil, nil
+func (that *Server) SignatureHelp(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.SignatureHelpParams) (*lsp.SignatureHelp, error) {
+	f, err := ctx.Open(params.TextDocument.URI)
+	if nil != err {
+		return nil, cause.Errors(err)
 	}
 	parsed, err := parser.Parse(f.Text)
 	if err != nil {
@@ -49,7 +45,7 @@ func (that *Server) SignatureHelp(ctx context.Context, conn *jsonrpc2.Conn, para
 		for _, col := range cols.GetIdentifers() {
 			colName := col.String()
 			colDoc := ""
-			colDesc, ok := dbCache.Column(tableName, colName)
+			colDesc, ok := ctx.DB().Column(tableName, colName)
 			if ok {
 				colDoc = colDesc.OnelineDesc()
 			}

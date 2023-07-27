@@ -5,9 +5,10 @@
  *
  */
 
-package log
+package cause
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"runtime"
@@ -68,4 +69,30 @@ func Caller(skip int) string {
 // IsTest is golang testing.
 func isTest() bool {
 	return nil != flag.Lookup("test.v")
+}
+
+type MultiError struct {
+	errs []error
+}
+
+func (that *MultiError) Append(err error) {
+	if nil != err {
+		that.errs = append(that.errs, err)
+	}
+}
+
+func (that *MultiError) AsError() error {
+	if len(that.errs) < 1 {
+		return nil
+	}
+	return that
+}
+
+func (that *MultiError) Error() string {
+	b := &bytes.Buffer{}
+	for _, err := range that.errs {
+		b.WriteString(err.Error())
+		b.WriteString("\n")
+	}
+	return b.String()
 }

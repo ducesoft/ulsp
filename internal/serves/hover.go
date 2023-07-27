@@ -1,11 +1,10 @@
 package serves
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"github.com/ducesoft/ulsp/ast"
 	"github.com/ducesoft/ulsp/ast/astutil"
+	"github.com/ducesoft/ulsp/cause"
 	"github.com/ducesoft/ulsp/internal/database"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 	"github.com/ducesoft/ulsp/lsp"
@@ -16,12 +15,12 @@ import (
 
 var ErrNoHover = errors.New("no hover infomation found")
 
-func (that *Server) Hover(ctx context.Context, conn *jsonrpc2.Conn, params *lsp.HoverParams) (*lsp.Hover, error) {
-	f, ok := that.files[params.TextDocument.URI]
-	if !ok {
-		return nil, fmt.Errorf("document not found: %s", params.TextDocument.URI)
+func (that *Server) Hover(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.HoverParams) (*lsp.Hover, error) {
+	f, err := ctx.Open(params.TextDocument.URI)
+	if nil != err {
+		return nil, cause.Errors(err)
 	}
-	res, err := hover(f.Text, params, that.worker.Cache())
+	res, err := hover(f.Text, params, ctx.DB())
 	if err != nil {
 		if errors.Is(ErrNoHover, err) {
 			return nil, nil

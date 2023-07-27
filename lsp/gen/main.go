@@ -71,8 +71,8 @@ func processinline(ctx context.Context) {
 
 	model := parse(ctx, filepath.Join(*repodir, "protocol/metaModel.json"))
 
-	findTypeNames(model)
-	generateOutput(model)
+	findTypeNames(ctx, model)
+	generateOutput(ctx, model)
 
 	fileHdr = fileHeader(ctx, model)
 
@@ -93,7 +93,6 @@ func writeclient(ctx context.Context) {
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString(
 		`import (
-	"context"
 	"encoding/json"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 )
@@ -103,7 +102,7 @@ func writeclient(ctx context.Context) {
 		out.WriteString(cdecls[k])
 	}
 	out.WriteString("}\n\n")
-	out.WriteString("func clientDispatch(ctx context.Context, client Client, conn *jsonrpc2.Conn, r Request) (any, error) {\n")
+	out.WriteString("func clientDispatch(ctx Context, client Client, conn *jsonrpc2.Conn, r Request) (any, error) {\n")
 	out.WriteString("\tswitch r.Method() {\n")
 	for _, k := range ccases.keys() {
 		out.WriteString(ccases[k])
@@ -129,7 +128,6 @@ func writeserver(ctx context.Context) {
 	fmt.Fprintln(out, fileHdr)
 	out.WriteString(
 		`import (
-	"context"
 	"encoding/json"
 	"github.com/ducesoft/ulsp/jsonrpc2"
 )
@@ -138,10 +136,10 @@ func writeserver(ctx context.Context) {
 	for _, k := range sdecls.keys() {
 		out.WriteString(sdecls[k])
 	}
-	out.WriteString(`	NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error)
+	out.WriteString(`	NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error)
 }
 
-func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r Request) (any, error) {
+func serverDispatch(ctx Context, server Server, conn *jsonrpc2.Conn, r Request) (any, error) {
 	switch r.Method() {
 `)
 	for _, k := range scases.keys() {
@@ -151,7 +149,7 @@ func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r R
 	for _, k := range sfuncs.keys() {
 		out.WriteString(sfuncs[k])
 	}
-	out.WriteString(`func (s *serverDispatcher) NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error) {
+	out.WriteString(`func (s *serverDispatcher) NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error) {
 	var result interface{}
 	if err := s.sender.Call(ctx, method, params, &result); err != nil {
 		return nil, err
@@ -173,7 +171,7 @@ func serverDispatch(ctx context.Context, server Server, conn *jsonrpc2.Conn, r R
 		}
 		out.WriteString("}\n\n")
 	}
-	out.WriteString(`func (that *AbsServer) NonstandardRequest(ctx context.Context, method string, params interface{}) (interface{}, error) {
+	out.WriteString(`func (that *AbsServer) NonstandardRequest(ctx Context, method string, params interface{}) (interface{}, error) {
 	return nil, ErrMethodNotFound
 }
 `)
