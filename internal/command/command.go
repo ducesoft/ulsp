@@ -20,9 +20,9 @@ func Provide(command Command) {
 	commands[command.Name()] = command
 }
 
-func Commands() []string {
-	var cmds []string
-	for k, _ := range commands {
+func Commands() []Command {
+	var cmds []Command
+	for _, k := range commands {
 		cmds = append(cmds, k)
 	}
 	return cmds

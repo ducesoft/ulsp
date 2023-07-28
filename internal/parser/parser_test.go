@@ -14,6 +14,9 @@ import (
 
 func TestParseKeywords(t *testing.T) {
 	t.Log(ParseKeywords(context.TODO(), `
+	select count(*);
+	`))
+	t.Log(ParseKeywords(context.TODO(), `
 	select count(*) from x where id in(select id from c where 1=1);
 	`))
 }

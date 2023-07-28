@@ -12,6 +12,18 @@ import (
 	"github.com/ducesoft/ulsp/token"
 )
 
+func (that *Server) Declaration(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DeclarationParams) (*lsp.Or_textDocument_declaration, error) {
+	return nil, nil
+}
+
+func (that *Server) Implementation(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ImplementationParams) ([]lsp.Location, error) {
+	return nil, nil
+}
+
+func (that *Server) References(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.ReferenceParams) ([]lsp.Location, error) {
+	return nil, nil
+}
+
 func (that *Server) Definition(ctx lsp.Context, conn *jsonrpc2.Conn, params *lsp.DefinitionParams) ([]lsp.Location, error) {
 	f, err := ctx.Open(params.TextDocument.URI)
 	if nil != err {
